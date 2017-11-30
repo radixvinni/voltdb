@@ -67,6 +67,7 @@ import org.voltdb.messaging.MultiPartitionParticipantMessage;
 import org.voltdb.messaging.RepairLogTruncationMessage;
 import org.voltdb.utils.MiscUtils;
 import org.voltdb.utils.VoltTrace;
+
 import com.google_voltpatches.common.primitives.Ints;
 import com.google_voltpatches.common.primitives.Longs;
 import com.google_voltpatches.common.util.concurrent.ListenableFuture;
@@ -1653,7 +1654,9 @@ public class SpScheduler extends Scheduler implements SnapshotCompletionInterest
                     DuplicateCounter counter = m_duplicateCounters.get(dc);
                     builder.append(counter.m_openMessage + "\n");
                 }
-                tmLog.debug("Duplicate counters on " + CoreUtils.hsIdToString(m_mailbox.getHSId()) + " have keys smaller than the sphandle:" + m_migratePartitionLeaderCheckPoint + "\n" + builder.toString());
+                tmLog.debug("Duplicate counters on " + CoreUtils.hsIdToString(m_mailbox.getHSId()) +
+                        " have keys smaller than the sphandle:" + m_migratePartitionLeaderCheckPoint +
+                        "\n" + builder.toString());
             }
             return false;
         }

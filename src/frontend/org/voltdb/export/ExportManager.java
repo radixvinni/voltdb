@@ -356,7 +356,8 @@ public class ExportManager
         }
     }
 
-    public synchronized void updateCatalog(CatalogContext catalogContext, boolean requireCatalogDiffCmdsApplyToEE, boolean requiresNewExportGeneration, List<Integer> partitions)
+    public synchronized void updateCatalog(CatalogContext catalogContext, boolean requireCatalogDiffCmdsApplyToEE,
+            boolean requiresNewExportGeneration, List<Integer> partitions)
     {
         final Cluster cluster = catalogContext.catalog.getClusters().get("cluster");
         final Database db = cluster.getDatabases().get("database");

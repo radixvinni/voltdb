@@ -18,6 +18,7 @@
 package org.voltdb.export.processors;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import org.voltcore.logging.VoltLogger;
 import org.voltcore.utils.DBBPool.BBContainer;
 import org.voltcore.utils.Pair;
 import org.voltdb.VoltDB;
+import org.voltdb.VoltType;
 import org.voltdb.export.AdvertisedDataSource;
 import org.voltdb.export.ExportDataProcessor;
 import org.voltdb.export.ExportDataSource;
@@ -45,8 +47,6 @@ import org.voltdb.exportclient.ExportRow;
 
 import com.google_voltpatches.common.base.Preconditions;
 import com.google_voltpatches.common.util.concurrent.ListenableFuture;
-import java.lang.reflect.Method;
-import org.voltdb.VoltType;
 
 public class GuestProcessor implements ExportDataProcessor {
 
@@ -219,12 +219,12 @@ public class GuestProcessor implements ExportDataProcessor {
             detectDecoder(m_client, edb);
             Pair<ExportDecoderBase, AdvertisedDataSource> pair = Pair.of(edb, ads);
             m_decoders.add(pair);
-            final ListenableFuture<BBContainer> fut = m_source.poll();
-            addBlockListener(m_source, fut, edb);
+            addBlockListener(m_source, edb);
         }
 
         private void runDataSource() {
             synchronized (GuestProcessor.this) {
+                if (m_shutdown) return;
 
                 final AdvertisedDataSource ads =
                         new AdvertisedDataSource(
@@ -239,50 +239,48 @@ public class GuestProcessor implements ExportDataProcessor {
                                 m_source.m_columnLengths,
                                 m_source.getExportFormat());
 
-                // in this case we cannot poll until the initial truncation is complete
-                final Runnable waitForBarrierRelease = new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            if (m_startPolling) { // Wait for command log replay to be done.
-                                if (m_logger.isDebugEnabled()) {
-                                    m_logger.debug("Beginning export processing for export source " + m_source.getTableName()
-                                    + " partition " + m_source.getPartitionId());
-                                }
-                                m_source.setReadyForPolling(true); // Tell source it is OK to start polling now.
-                                synchronized (GuestProcessor.this) {
-                                    if (m_shutdown) return;
-                                    buildListener(ads);
-                                }
-                            } else {
-                                Thread.sleep(5);
-                                resubmitSelf();
-                            }
-                        } catch(InterruptedException e) {
-                            resubmitSelf();
-                        } catch (Exception e) {
-                            VoltDB.crashLocalVoltDB("Failed to initiate export binary deque poll", true, e);
-                        }
-                    }
-
-                    private void resubmitSelf() {
-                        synchronized (GuestProcessor.this) {
-                            if (m_shutdown) return;
-                            if (!m_source.getExecutorService().isShutdown()) try {
-                                m_source.getExecutorService().submit(this);
-                            } catch (RejectedExecutionException whenExportDataSourceIsClosed) {
-                                // it is truncated so we no longer need to wait
-
-                                // TODO: When truncation is finished, generation roll-over does not happen.
-                                // Log a message to and revisit the error handling for this case
-                                m_logger.warn("Got rejected execution exception while waiting for truncation to finish");
-                            }
-                        }
-                    }
-                };
-                if (m_shutdown) return;
                 if (!m_source.getExecutorService().isShutdown()) try {
-                    m_source.getExecutorService().submit(waitForBarrierRelease);
+                    // in this case we cannot poll until the initial truncation is complete
+                    m_source.getExecutorService().submit(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                if (m_startPolling) { // Wait for command log replay to be done.
+                                    if (m_logger.isDebugEnabled()) {
+                                        m_logger.debug("Beginning export processing for export source " + m_source.getTableName()
+                                        + " partition " + m_source.getPartitionId());
+                                    }
+                                    m_source.setReadyForPolling(true); // Tell source it is OK to start polling now.
+                                    synchronized (GuestProcessor.this) {
+                                        if (m_shutdown) return;
+                                        buildListener(ads);
+                                    }
+                                } else {
+                                    Thread.sleep(5);
+                                    resubmitSelf();
+                                }
+                            } catch(InterruptedException e) {
+                                resubmitSelf();
+                            } catch (Exception e) {
+                                VoltDB.crashLocalVoltDB("Failed to initiate export binary deque poll", true, e);
+                            }
+                        }
+
+                        private void resubmitSelf() {
+                            synchronized (GuestProcessor.this) {
+                                if (m_shutdown) return;
+                                if (!m_source.getExecutorService().isShutdown()) try {
+                                    m_source.getExecutorService().submit(this);
+                                } catch (RejectedExecutionException whenExportDataSourceIsClosed) {
+                                    // it is truncated so we no longer need to wait
+
+                                    // TODO: When truncation is finished, generation roll-over does not happen.
+                                    // Log a message to and revisit the error handling for this case
+                                    m_logger.warn("Got rejected execution exception while waiting for truncation to finish");
+                                }
+                            }
+                        }
+                    });
                 } catch (RejectedExecutionException whenExportDataSourceIsClosed) {
                     // it is truncated so we no longer need to wait
 
@@ -303,7 +301,6 @@ public class GuestProcessor implements ExportDataProcessor {
 
     private void addBlockListener(
             final ExportDataSource source,
-            final ListenableFuture<BBContainer> fut,
             final ExportDecoderBase edb) {
         /*
          * The listener runs in the thread specified by the EDB.
@@ -311,6 +308,7 @@ public class GuestProcessor implements ExportDataProcessor {
          * For JDBC we want a dedicated thread to block on calls to the remote database
          * so the data source thread can overflow data to disk.
          */
+        final ListenableFuture<BBContainer> fut = source.poll();
         if (fut == null) {
             return;
         }
@@ -401,10 +399,9 @@ public class GuestProcessor implements ExportDataProcessor {
                                 }
                             }
                         }
-                        //Dont discard the block also set the start position to the begining.
+                        //Don't discard the block also set the start position to the beginning.
                         if (m_shutdown && cont != null) {
                             if (m_logger.isDebugEnabled()) {
-                                // log message for debugging.
                                 m_logger.debug("Shutdown detected, queue block to pending");
                             }
                             cont.b().position(startPosition);
@@ -420,7 +417,7 @@ public class GuestProcessor implements ExportDataProcessor {
                     m_logger.error("Error processing export block", e);
                 }
                 if (!m_shutdown) {
-                    addBlockListener(source, source.poll(), edb);
+                    addBlockListener(source, edb);
                 }
             }
         }, edb.getExecutor());

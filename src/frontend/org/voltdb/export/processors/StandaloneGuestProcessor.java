@@ -17,29 +17,32 @@
 
 package org.voltdb.export.processors;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.voltcore.logging.VoltLogger;
 import org.voltcore.utils.DBBPool.BBContainer;
 import org.voltcore.utils.Pair;
+import org.voltdb.VoltType;
 import org.voltdb.export.AdvertisedDataSource;
 import org.voltdb.export.ExportDataSource;
+import org.voltdb.export.StandaloneExportDataProcessor;
+import org.voltdb.export.StandaloneExportGeneration;
 import org.voltdb.exportclient.ExportClientBase;
 import org.voltdb.exportclient.ExportDecoderBase;
 import org.voltdb.exportclient.ExportDecoderBase.RestartBlockException;
+import org.voltdb.exportclient.ExportRow;
 
 import com.google_voltpatches.common.base.Preconditions;
 import com.google_voltpatches.common.base.Throwables;
 import com.google_voltpatches.common.util.concurrent.ListenableFuture;
-import java.io.IOException;
-import org.voltdb.VoltType;
-import org.voltdb.export.StandaloneExportDataProcessor;
-import org.voltdb.export.StandaloneExportGeneration;
-import org.voltdb.exportclient.ExportRow;
 
 public class StandaloneGuestProcessor implements StandaloneExportDataProcessor {
 
@@ -119,8 +122,7 @@ public class StandaloneGuestProcessor implements StandaloneExportDataProcessor {
                                             source.getExportFormat());
                             ExportDecoderBase edb = m_client.constructExportDecoder(ads);
                             m_decoders.add(Pair.of(edb, ads));
-                            final ListenableFuture<BBContainer> fut = source.poll();
-                            constructListener(source, fut, edb);
+                            constructListener(source, edb);
                         }
                     }
                 }, false);
@@ -130,7 +132,6 @@ public class StandaloneGuestProcessor implements StandaloneExportDataProcessor {
 
     private void constructListener(
             final ExportDataSource source,
-            final ListenableFuture<BBContainer> fut,
             final ExportDecoderBase edb) {
         /*
          * The listener runs in the thread specified by the EDB.
@@ -140,6 +141,7 @@ public class StandaloneGuestProcessor implements StandaloneExportDataProcessor {
          * For JDBC we want a dedicated thread to block on calls to the remote database
          * so the data source thread can overflow data to disk.
          */
+        final ListenableFuture<BBContainer> fut = source.poll();
         if (fut == null) {
             return;
         }
@@ -216,7 +218,7 @@ public class StandaloneGuestProcessor implements StandaloneExportDataProcessor {
                 } catch (Exception e) {
                     m_logger.error("Error processing export block", e);
                 }
-                constructListener(source, source.poll(), edb);
+                constructListener(source, edb);
             }
         }, edb.getExecutor());
     }

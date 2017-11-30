@@ -80,23 +80,29 @@ public class ExportDataSource implements Comparable<ExportDataSource> {
     private final int m_partitionId;
     private final ExportFormat m_format;
     private long m_firstUnpolledUso = 0;
+    /* Abstraction layer to store stream blocks pushed from EE, it has a non-persistent and a persistent queue */
     private final StreamBlockQueue m_committedBuffers;
+
+    /* An ExportRunner task needs to be executed when data source accepts mastership */
     private Runnable m_onMastership;
+    /* Did data source accept mastership? */
+    private volatile AtomicBoolean m_mastershipAccepted = new AtomicBoolean(false);
+
     private SettableFuture<BBContainer> m_pollFuture;
+
     private final AtomicReference<Pair<Mailbox, ImmutableList<Long>>> m_ackMailboxRefs =
             new AtomicReference<>(Pair.of((Mailbox)null, ImmutableList.<Long>builder().build()));
     private final Semaphore m_bufferPushPermits = new Semaphore(16);
 
-    private long m_lastReleaseOffset = 0;
+    private long m_lastAckedUso = 0;
     //Set if connector "replicated" property is set to true
     private boolean m_runEveryWhere = false;
     private boolean m_replicaRunning = false;
-    //This is released when all mailboxes are set.
-    private final Semaphore m_allowAcceptingMastership = new Semaphore(0);
+    /* Does data source get closed? */
     private volatile boolean m_closed = false;
-    private volatile AtomicBoolean m_mastershipAccepted = new AtomicBoolean(false);
     private volatile ListeningExecutorService m_es;
     private final AtomicReference<BBContainer> m_pendingContainer = new AtomicReference<>();
+    /* Does data source come from catalog or disk (dropped table but has some undrained data) */
     private volatile boolean m_isInCatalog;
     private volatile boolean m_eos;
     private final Generation m_generation;
@@ -283,30 +289,30 @@ public class ExportDataSource implements Comparable<ExportDataSource> {
         return m_client;
     }
 
-    private synchronized void releaseExportBytes(long releaseOffset) throws IOException {
+    private synchronized void releaseExportBytes(long releaseUso) throws IOException {
         // if released offset is in an already-released past, just return success
-        if (!m_committedBuffers.isEmpty() && releaseOffset < m_committedBuffers.peek().uso()) {
+        if (!m_committedBuffers.isEmpty() && releaseUso < m_committedBuffers.peek().uso()) {
             return;
         }
 
         long lastUso = m_firstUnpolledUso;
-        while (!m_committedBuffers.isEmpty() && releaseOffset >= m_committedBuffers.peek().uso()) {
+        while (!m_committedBuffers.isEmpty() && releaseUso >= m_committedBuffers.peek().uso()) {
             StreamBlock sb = m_committedBuffers.peek();
-            if (releaseOffset >= sb.uso() + sb.totalSize()-1) {
+            if (releaseUso >= sb.uso() + sb.totalSize() - 1) {
                 m_committedBuffers.pop();
                 try {
-                    lastUso = sb.uso() + sb.totalSize()-1;
+                    lastUso = sb.uso() + sb.totalSize() - 1;
                 } finally {
                     sb.discard();
                 }
-            } else if (releaseOffset >= sb.uso()) {
-                sb.releaseUso(releaseOffset);
-                lastUso = releaseOffset;
+            } else if (releaseUso >= sb.uso()) {
+                sb.releaseUso(releaseUso);
+                lastUso = releaseUso;
                 break;
             }
         }
-        m_lastReleaseOffset = releaseOffset;
-        m_firstUnpolledUso = Math.max(m_firstUnpolledUso, lastUso+1);
+        m_lastAckedUso = releaseUso;
+        m_firstUnpolledUso = Math.max(m_firstUnpolledUso, lastUso + 1);
     }
 
     public String getDatabase() {
@@ -443,10 +449,10 @@ public class ExportDataSource implements Comparable<ExportDataSource> {
             //the USO in stream block
             if (buffer.capacity() > 8) {
                 final BBContainer cont = DBBPool.wrapBB(buffer);
-                if (m_lastReleaseOffset > 0 && m_lastReleaseOffset >= (uso + (buffer.capacity() - 8) - 1)) {
+                if (m_lastAckedUso > 0 && m_lastAckedUso >= (uso + (buffer.capacity() - 8) - 1)) {
                     //What ack from future is known?
                     if (exportLog.isDebugEnabled()) {
-                        exportLog.debug("Dropping already acked USO: " + m_lastReleaseOffset
+                        exportLog.debug("Dropping already acked USO: " + m_lastAckedUso
                                 + " Buffer info: " + uso + " Size: " + buffer.capacity());
                     }
                     cont.discard();
@@ -459,15 +465,14 @@ public class ExportDataSource implements Comparable<ExportDataSource> {
                                 public void discard() {
                                     checkDoubleFree();
                                     cont.discard();
-                                    deleted.set(true);
                                 }
                             }, uso, false);
-                    if (m_lastReleaseOffset > 0 && m_lastReleaseOffset >= sb.uso()) {
+                    if (m_lastAckedUso > 0 && m_lastAckedUso >= sb.uso()) {
                         if (exportLog.isDebugEnabled()) {
-                            exportLog.debug("Setting releaseUso as " + m_lastReleaseOffset +
+                            exportLog.debug("Setting lastAckedUso as " + m_lastAckedUso +
                                     " for sb with uso " + sb.uso() + " for partition " + m_partitionId);
                         }
-                        sb.releaseUso(m_lastReleaseOffset);
+                        sb.releaseUso(m_lastAckedUso);
                     }
                     m_committedBuffers.offer(sb);
                 } catch (IOException e) {
@@ -616,8 +621,6 @@ public class ExportDataSource implements Comparable<ExportDataSource> {
 
     public ListenableFuture<?> close() {
         m_closed = true;
-        //If we are waiting at this allow to break out when close comes in.
-        m_allowAcceptingMastership.release();
         return m_es.submit(new Runnable() {
             @Override
             public void run() {
