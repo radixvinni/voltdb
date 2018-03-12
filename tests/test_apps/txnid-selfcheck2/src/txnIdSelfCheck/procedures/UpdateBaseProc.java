@@ -24,7 +24,6 @@
 package txnIdSelfCheck.procedures;
 
 import org.voltdb.SQLStmt;
-import org.voltdb.SQLStmtAdHocHelper;
 import org.voltdb.VoltProcedure;
 import org.voltdb.VoltTable;
 import org.voltdb.VoltTableRow;
@@ -50,7 +49,7 @@ public class UpdateBaseProc extends VoltProcedure {
             "INSERT INTO partitioned (txnid, prevtxnid, ts, cid, cidallhash, rid, cnt, adhocinc, adhocjmp, value) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
 
     public final SQLStmt p_update = new SQLStmt(
-            "UPDATE partitioned set txnid=?, prevtxnid=?, ts=?, cidallhash=?, rid=?, cnt=add2Bigint(cnt,1), adhocinc=?, adhocjmp=?, value=identityVarbin(value) where cid=? and rid=?");
+            "UPDATE partitioned set txnid=?, prevtxnid=?, ts=?, cidallhash=?, rid=add2Bigint(?,0), cnt=add2Bigint(cnt,1), adhocinc=?, adhocjmp=?, value=identityVarbin(value) where cid=? and rid=?");
 
     public final SQLStmt p_export = new SQLStmt(
             "INSERT INTO partitioned_export (txnid, prevtxnid, ts, cid, cidallhash, rid, cnt, adhocinc, adhocjmp, value) VALUES (?, ?, ?, ?, ?, ?, add2Bigint(?,1), ?, ?, ?);");
@@ -127,7 +126,9 @@ public class UpdateBaseProc extends VoltProcedure {
         validateCIDData(data, view, getClass().getName());
 
         // check the rids monotonically increase
-        if (prevrid >= rid) {
+        // we should never be off by more than one transaction,
+        // ie. one transaction could have been lost in a node or cluster kill
+        if (prevrid < rid-2) {
             throw new VoltAbortException(getClass().getName() +
                     " previous rid " + prevrid +
                     " >= than current rid " + rid +
@@ -146,12 +147,27 @@ public class UpdateBaseProc extends VoltProcedure {
         // Is this comment below now obsolete and can be removed?
         // Verify that our update happened.  The client is reporting data errors on this validation
         // not seen by the server, hopefully this will bisect where they're occurring.
-        data = retval[retval.length-2];
-        view = retval[retval.length-1];
+        VoltTable data2 = retval[retval.length-2];
+        VoltTable view2 = retval[retval.length-1];
 
-        VoltTableRow row = data.fetchRow(0);
+        VoltTableRow row = data2.fetchRow(0);
         if (row.getVarbinary("value").length == 0)
             throw new VoltAbortException("Value column contained no data in UpdateBaseProc");
+
+        // get the most recent row's data
+        long new_rid = -1;
+        if (data2.getRowCount() != 0) {
+            VoltTableRow row2 = data2.fetchRow(0);
+            new_rid = row2.getLong("rid");
+        }
+
+        // check the fetched rid is as expected
+        if (new_rid != rid) {
+            throw new VoltAbortException(getClass().getName() +
+                    " new rid " + new_rid +
+                    " != current rid " + rid +
+                    " for cid " + cid);
+        }
 
         validateCIDData(data, view, getClass().getName());
 
