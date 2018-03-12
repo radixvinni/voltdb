@@ -26,6 +26,19 @@ CREATE TABLE partitioned
 PARTITION TABLE partitioned ON COLUMN cid;
 CREATE INDEX P_CIDINDEX ON partitioned (cid);
 
+-- dimension table
+CREATE TABLE dimension
+(
+  cid        tinyint            NOT NULL
+, desc         tinyint             NOT NULL
+, CONSTRAINT PK_id_d PRIMARY KEY
+  (
+    cid
+  )
+, UNIQUE ( cid )
+);
+CREATE UNIQUE INDEX D_DESCINDEX ON dimension (desc);
+
 CREATE VIEW partview (
     cid,
     entries,
@@ -39,19 +52,6 @@ CREATE VIEW partview (
     MIN(cnt),
     SUM(cnt)
 FROM partitioned GROUP BY cid;
-
--- dimension table
-CREATE TABLE dimension
-(
-  cid        tinyint            NOT NULL
-, desc         tinyint             NOT NULL
-, CONSTRAINT PK_id_d PRIMARY KEY
-  (
-    cid
-  )
-, UNIQUE ( cid )
-);
-CREATE UNIQUE INDEX D_DESCINDEX ON dimension (desc);
 
 -- replicated table
 CREATE TABLE replicated
@@ -463,5 +463,22 @@ CREATE PROCEDURE FROM CLASS txnIdSelfCheck.procedures.ImportInsertP;
 PARTITION PROCEDURE ImportInsertP ON TABLE importp COLUMN cid PARAMETER 3;
 PARTITION PROCEDURE ImportInsertP ON TABLE importbp COLUMN cid PARAMETER 3;
 CREATE PROCEDURE FROM CLASS txnIdSelfCheck.procedures.ImportInsertR;
+CREATE FUNCTION add2Bigint    FROM METHOD txnIdSelfCheck.procedures.udfs.add2Bigint;
+CREATE FUNCTION identityVarbin    FROM METHOD txnIdSelfCheck.procedures.udfs.identityVarbin;
+CREATE PROCEDURE FROM CLASS txnIdSelfCheck.procedures.exceptionUDF;
+CREATE PROCEDURE FROM CLASS txnIdSelfCheck.procedures.SimpleUDF;
+CREATE FUNCTION excUDF    FROM METHOD txnIdSelfCheck.procedures.udfs.badUDF;
+--
+-- simpleUDF(t, n) returns t*10**n;
+--
+CREATE FUNCTION simpleUDF2  FROM METHOD txnIdSelfCheck.procedures.udfs.simpleUDF2;
+CREATE FUNCTION simpleUDF3  FROM METHOD txnIdSelfCheck.procedures.udfs.simpleUDF3;
+CREATE FUNCTION simpleUDF4  FROM METHOD txnIdSelfCheck.procedures.udfs.simpleUDF4;
+CREATE FUNCTION simpleUDF5  FROM METHOD txnIdSelfCheck.procedures.udfs.simpleUDF5;
+CREATE FUNCTION simpleUDF6  FROM METHOD txnIdSelfCheck.procedures.udfs.simpleUDF6;
+CREATE FUNCTION simpleUDF7  FROM METHOD txnIdSelfCheck.procedures.udfs.simpleUDF7;
+CREATE FUNCTION simpleUDF8  FROM METHOD txnIdSelfCheck.procedures.udfs.simpleUDF8;
+CREATE FUNCTION simpleUDF9  FROM METHOD txnIdSelfCheck.procedures.udfs.simpleUDF9;
+CREATE FUNCTION simpleUDF10 FROM METHOD txnIdSelfCheck.procedures.udfs.simpleUDF10;
 
 END_OF_BATCH
