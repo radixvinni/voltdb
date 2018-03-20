@@ -128,7 +128,7 @@ public class UpdateBaseProc extends VoltProcedure {
         // check the rids monotonically increase
         // we should never be off by more than one transaction,
         // ie. one transaction could have been lost in a node or cluster kill
-        if (prevrid < rid-2) {
+        if (prevrid < rid-3) {
             throw new VoltAbortException(getClass().getName() +
                     " previous rid " + prevrid +
                     " >= than current rid " + rid +
