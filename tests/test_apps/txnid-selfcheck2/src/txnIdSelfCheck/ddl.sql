@@ -468,6 +468,7 @@ CREATE PROCEDURE FROM CLASS txnIdSelfCheck.procedures.ImportInsertR;
 CREATE FUNCTION add2Bigint    FROM METHOD txnIdSelfCheck.procedures.udfs.add2Bigint;
 CREATE FUNCTION identityVarbin    FROM METHOD txnIdSelfCheck.procedures.udfs.identityVarbin;
 CREATE PROCEDURE FROM CLASS txnIdSelfCheck.procedures.exceptionUDF;
+CREATE PROCEDURE FROM CLASS txnIdSelfCheck.procedures.SimpleUDF;
 CREATE FUNCTION excUDF    FROM METHOD txnIdSelfCheck.procedures.udfs.badUDF;
 --
 -- simpleUDF(t, n) returns t*10**n;
