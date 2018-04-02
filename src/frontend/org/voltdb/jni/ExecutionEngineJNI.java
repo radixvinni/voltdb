@@ -553,6 +553,16 @@ public class ExecutionEngineJNI extends ExecutionEngine {
         nativeTick(pointer, time, lastCommittedTxnId);
     }
 
+    /**
+     * Enables or disables the abort state for the countdown latch that coordinates
+     * Replicated table changes across sites.
+     * @param aborted indicate whether the abort state should be enabled (true) or disabled (false)
+     */
+    @Override
+    public void setCountdownLatchAbortState(final boolean aborted) {
+        nativeSetCountdownLatchAbortState(aborted);
+    }
+
     @Override
     public void quiesce(long lastCommittedTxnId) {
         nativeQuiesce(pointer, lastCommittedTxnId);

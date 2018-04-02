@@ -59,6 +59,19 @@ ConditionalExecuteOutsideMpMemory::~ConditionalExecuteOutsideMpMemory() {
     }
 }
 
+SynchronizedExecute::SynchronizedExecute(bool isLowestSite, int64_t &exceptionTracker) :
+        m_okToExecute(isLowestSite) {
+    if (SynchronizedThreadLock::countDownGlobalTxnStartCount(isLowestSite)) {
+        exceptionTracker = -1;
+    }
+}
+
+SynchronizedExecute::~SynchronizedExecute() {
+    if (m_okToExecute) {
+        SynchronizedThreadLock::signalLowestSiteFinished();
+    }
+}
+
 ConditionalSynchronizedExecuteWithMpMemory::ConditionalSynchronizedExecuteWithMpMemory(bool needMpMemoryOnLowestThread,
                                                                                        bool isLowestSite,
                                                                                        int64_t& exceptionTracker) :

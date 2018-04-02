@@ -178,6 +178,8 @@ private:
 
     int8_t tick(struct ipc_command *cmd);
 
+    int8_t setCountdownLatchAbortState(struct ipc_command *cmd);
+
     int8_t quiesce(struct ipc_command *cmd);
 
     int8_t shutDown();
@@ -555,6 +557,9 @@ bool VoltDBIPC::execute(struct ipc_command *cmd) {
       case 30:
           result = shutDown();
           break;
+      case 31:
+          result = setCountdownLatchAbortState(cmd);
+          break;
       default:
         result = stub(cmd);
     }
@@ -777,6 +782,27 @@ int8_t VoltDBIPC::tick(struct ipc_command *cmd) {
     try {
         // no return code. can't fail!
         m_engine->tick(ntohll(cs->time), ntohll(cs->lastSpHandle));
+    } catch (const FatalException &e) {
+        crashVoltDB(e);
+    }
+
+    return kErrorCode_Success;
+}
+
+int8_t VoltDBIPC::setCountdownLatchAbortState(struct ipc_command *cmd) {
+    assert (m_engine);
+    if (!m_engine)
+        return kErrorCode_Error;
+
+    struct abortState {
+        struct ipc_command cmd;
+        int32_t aborted;
+    }__attribute__((packed));
+
+    struct abortState * cs = (struct abortState*) cmd;
+    try {
+        // no return code. can't fail!
+        SynchronizedThreadLock::setCountdownLatchAbortState(cs->aborted != 0);
     } catch (const FatalException &e) {
         crashVoltDB(e);
     }

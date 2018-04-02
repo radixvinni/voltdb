@@ -52,6 +52,18 @@ private:
     bool m_notUsingMpMemory;
 };
 
+class SynchronizedExecute {
+public:
+    SynchronizedExecute(bool isLowestSite, int64_t &exceptionTracker);
+
+    ~SynchronizedExecute();
+
+    bool okToExecute() { return m_okToExecute; }
+
+private:
+    bool m_okToExecute;
+};
+
 class ConditionalSynchronizedExecuteWithMpMemory {
 public:
     ConditionalSynchronizedExecuteWithMpMemory(bool needMpMemoryOnLowestThread,

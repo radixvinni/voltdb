@@ -109,6 +109,7 @@
 #include "common/SegvException.hpp"
 #include "common/RecoveryProtoMessage.h"
 #include "common/ElasticHashinator.h"
+#include "common/SynchronizedThreadLock.h"
 #include "common/ThreadLocalPool.h"
 #include "storage/DRTupleStream.h"
 #include "murmur3/MurmurHash3.h"
@@ -555,6 +556,17 @@ SHAREDLIB_JNIEXPORT jint JNICALL Java_org_voltdb_jni_ExecutionEngine_nativeSetBu
     }
 
     return org_voltdb_jni_ExecutionEngine_ERRORCODE_SUCCESS;
+}
+
+/**
+ * Enables or disables the abort state for the countdown latch that coordinates
+ * Replicated table changes across sites.
+ * @param aborted indicate whether the abort state should be enabled (true) or disabled (false)
+ */
+SHAREDLIB_JNIEXPORT void JNICALL Java_org_voltdb_jni_ExecutionEngine_nativeSetCountdownLatchAbortState
+(jboolean aborted)
+{
+    SynchronizedThreadLock::setCountdownLatchAbortState(aborted == JNI_TRUE);
 }
 
 /**

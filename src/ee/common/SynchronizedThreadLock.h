@@ -83,6 +83,7 @@ public:
      */
     static bool countDownGlobalTxnStartCount(bool lowestSite);
     static void signalLowestSiteFinished();
+    static void setCountdownLatchAbortState(bool aborted);
 
     static void lockReplicatedResourceNoThreadLocals();
     static void unlockReplicatedResourceNoThreadLocals();
@@ -116,6 +117,8 @@ public:
 
 private:
     static bool s_inSingleThreadMode;
+    static bool s_lowestSiteWaiting;
+    static bool s_countdownLatchAborted;
 #ifndef  NDEBUG
     static bool s_usingMpMemory;
     static bool s_holdingReplicatedTableLock;

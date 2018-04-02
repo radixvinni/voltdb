@@ -1455,6 +1455,13 @@ VoltDBEngine::processCatalogAdditions(int64_t timestamp, bool updateReplicated,
  * delete or modify the corresponding execution engine objects.
  */
 bool VoltDBEngine::updateCatalog(int64_t timestamp, bool isStreamUpdate, std::string const& catalogPayload) {
+    // It is possible that updateCatalog is aborted because of a host failure that has one or more leaders.
+    // If updateCatalog is received on some sites but not on other sites, we want to abort at the start rather
+    // than in the middle.
+    if (SynchronizedThreadLock::countDownGlobalTxnStartCount(m_isLowestSite)) {
+        SynchronizedThreadLock::signalLowestSiteFinished();
+    }
+
     // clean up execution plans when the tables underneath might change
     if (m_plans) {
         m_plans->clear();

@@ -747,6 +747,13 @@ public abstract class ExecutionEngine implements FastDeserializer.Deserializatio
     public abstract void tick(long time, long lastCommittedSpHandle);
 
     /**
+     * Enables or disables the abort state for the countdown latch that coordinates
+     * Replicated table changes across sites.
+     * @param aborted indicate whether the abort state should be enabled (true) or disabled (false)
+     */
+    public abstract void setCountdownLatchAbortState(final boolean aborted);
+
+    /**
      * Instruct EE to come to an idle state. Flush Export buffers, finish
      * any in-progress checkpoint, etc.
      */
@@ -1005,6 +1012,13 @@ public abstract class ExecutionEngine implements FastDeserializer.Deserializatio
      * System.currentTimeMillis();
      */
     protected native void nativeTick(long pointer, long time, long lastCommittedSpHandle);
+
+    /**
+     * Enables or disables the abort state for the countdown latch that coordinates
+     * Replicated table changes across sites.
+     * @param aborted indicate whether the abort state should be enabled (true) or disabled (false)
+     */
+    protected native void nativeSetCountdownLatchAbortState(boolean aborted);
 
     /**
      * Native implementation of quiesce engine interface method.

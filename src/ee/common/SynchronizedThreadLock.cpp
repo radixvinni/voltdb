@@ -51,6 +51,8 @@ int32_t SynchronizedThreadLock::s_SITES_PER_HOST = -1;
 int32_t SynchronizedThreadLock::s_globalTxnStartCountdownLatch = 0;
 
 bool SynchronizedThreadLock::s_inSingleThreadMode = false;
+bool SynchronizedThreadLock::s_lowestSiteWaiting = false;
+bool SynchronizedThreadLock::s_countdownLatchAborted = false;
 const int32_t SynchronizedThreadLock::s_mpMemoryPartitionId = 65535;
 #ifndef  NDEBUG
 bool SynchronizedThreadLock::s_usingMpMemory = false;
@@ -190,8 +192,21 @@ bool SynchronizedThreadLock::countDownGlobalTxnStartCount(bool lowestSite) {
     assert(!s_inSingleThreadMode);
     if (lowestSite) {
         pthread_mutex_lock(&s_sharedEngineMutex);
+        if (s_countdownLatchAborted) {
+            pthread_mutex_unlock(&s_sharedEngineMutex);
+            throw SerializableEEException(VOLT_EE_EXCEPTION_TYPE_REPLICATED_TABLE,
+                    "Replicated table change aborted due to leader change");
+        }
         if (--s_globalTxnStartCountdownLatch != 0) {
+            s_lowestSiteWaiting = true;
             pthread_cond_wait(&s_wakeLowestEngineCondition, &s_sharedEngineMutex);
+        }
+        s_lowestSiteWaiting = false;
+        if (s_countdownLatchAborted) {
+            pthread_mutex_unlock(&s_sharedEngineMutex);
+            VOLT_DEBUG("Lowest partition thread aborted on thread %d", ThreadLocalPool::getThreadPartitionId());
+            throw SerializableEEException(VOLT_EE_EXCEPTION_TYPE_REPLICATED_TABLE,
+                    "Replicated table change aborted due to leader change");
         }
         pthread_mutex_unlock(&s_sharedEngineMutex);
         VOLT_DEBUG("Switching context to MP partition on thread %d", ThreadLocalPool::getThreadPartitionId());
@@ -201,10 +216,21 @@ bool SynchronizedThreadLock::countDownGlobalTxnStartCount(bool lowestSite) {
     else {
         VOLT_DEBUG("Waiting for MP partition work to complete on thread %d", ThreadLocalPool::getThreadPartitionId());
         pthread_mutex_lock(&s_sharedEngineMutex);
+        if (s_countdownLatchAborted) {
+            pthread_mutex_unlock(&s_sharedEngineMutex);
+            throw SerializableEEException(VOLT_EE_EXCEPTION_TYPE_REPLICATED_TABLE,
+                    "Replicated table change aborted due to leader change");
+        }
         if (--s_globalTxnStartCountdownLatch == 0) {
             pthread_cond_broadcast(&s_wakeLowestEngineCondition);
         }
         pthread_cond_wait(&s_sharedEngineCondition, &s_sharedEngineMutex);
+        if (s_countdownLatchAborted) {
+            pthread_mutex_unlock(&s_sharedEngineMutex);
+            VOLT_DEBUG("Other SP partition thread aborted on thread %d", ThreadLocalPool::getThreadPartitionId());
+            throw SerializableEEException(VOLT_EE_EXCEPTION_TYPE_REPLICATED_TABLE,
+                    "Replicated table change aborted due to leader change");
+        }
         pthread_mutex_unlock(&s_sharedEngineMutex);
         assert(!s_inSingleThreadMode);
         VOLT_DEBUG("Other SP partition thread released on thread %d", ThreadLocalPool::getThreadPartitionId());
@@ -214,10 +240,32 @@ bool SynchronizedThreadLock::countDownGlobalTxnStartCount(bool lowestSite) {
 
 void SynchronizedThreadLock::signalLowestSiteFinished() {
     pthread_mutex_lock(&s_sharedEngineMutex);
+    if (s_countdownLatchAborted) {
+        // This can happen when the countdown latch it managed through an RAII
+        pthread_mutex_unlock(&s_sharedEngineMutex);
+        return;
+    }
     s_globalTxnStartCountdownLatch = s_SITES_PER_HOST;
     VOLT_DEBUG("Restore context to lowest SP partition on thread %d", ThreadLocalPool::getThreadPartitionId());
     s_inSingleThreadMode = false;
     pthread_cond_broadcast(&s_sharedEngineCondition);
+    pthread_mutex_unlock(&s_sharedEngineMutex);
+}
+
+void SynchronizedThreadLock::setCountdownLatchAbortState(bool aborted) {
+    pthread_mutex_lock(&s_sharedEngineMutex);
+    if (aborted) {
+        s_countdownLatchAborted = true;
+        if (s_lowestSiteWaiting) {
+            // when the lowest site is waiting, we need to
+            pthread_cond_broadcast(&s_wakeLowestEngineCondition);
+        }
+        pthread_cond_broadcast(&s_sharedEngineCondition);
+    }
+    else {
+        s_globalTxnStartCountdownLatch = s_SITES_PER_HOST;
+        s_countdownLatchAborted = false;
+    }
     pthread_mutex_unlock(&s_sharedEngineMutex);
 }
 

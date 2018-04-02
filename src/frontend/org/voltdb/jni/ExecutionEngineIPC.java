@@ -131,7 +131,8 @@ public class ExecutionEngineIPC extends ExecutionEngine {
         UpdateHashinator(27),
         ExecuteTask(28),
         ApplyBinaryLog(29),
-        ShutDown(30);
+        ShutDown(30),
+        AbortCountdownLatch(31);
         Commands(final int id) {
             m_id = id;
         }
@@ -1020,6 +1021,23 @@ public class ExecutionEngineIPC extends ExecutionEngine {
         }
         checkErrorCode(result);
         // no return code for tick.
+    }
+
+    @Override
+    public void setCountdownLatchAbortState(boolean aborted) {
+        int result = ExecutionEngine.ERRORCODE_ERROR;
+        m_data.clear();
+        m_data.putInt(Commands.AbortCountdownLatch.m_id);
+        m_data.putInt(aborted ? 1 : 0);
+        try {
+            m_data.flip();
+            m_connection.write();
+            result = m_connection.readStatusByte();
+        } catch (final IOException e) {
+            System.out.println("Exception: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+        checkErrorCode(result);
     }
 
     @Override

@@ -168,6 +168,10 @@ public class MockExecutionEngine extends ExecutionEngine {
     }
 
     @Override
+    public void setCountdownLatchAbortState(final boolean aborted) {
+    }
+
+    @Override
     public void toggleProfiler(final int toggle) {
     }
 
