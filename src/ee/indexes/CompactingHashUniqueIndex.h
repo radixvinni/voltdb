@@ -73,6 +73,9 @@ class CompactingHashUniqueIndex : public TableIndex
     }
 
     void addEntryDo(const TableTuple *tuple, TableTuple *conflictTuple) {
+        std::cout << "CompactingHashUniqueIndex::deleteEntryDo: tuple data is "
+                  << (tuple->m_data ? "not " : "")
+                  << "null.\n";
         ++m_inserts;
         const void* const* conflictEntry = m_entries.insert(setKeyFromTuple(tuple), tuple->address());
         if (conflictEntry != NULL && conflictTuple != NULL) {
@@ -82,6 +85,9 @@ class CompactingHashUniqueIndex : public TableIndex
 
     bool deleteEntryDo(const TableTuple *tuple) {
         ++m_deletes;
+        std::cout << "CompactingTreeMultiMapIndex::deleteEntryDo: tuple data is "
+                  << (tuple->m_data ? "not " : "")
+                  << "null.\n";
         return m_entries.erase(setKeyFromTuple(tuple));
     }
 

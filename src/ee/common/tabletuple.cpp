@@ -50,6 +50,7 @@
 #include "common/common.h"
 #include "common/debuglog.h"
 #include "common/FatalException.hpp"
+#include "tabletuple.h"
 
 namespace voltdb {
 
@@ -105,7 +106,6 @@ std::string TableTuple::debug(const std::string& tableName,
 
 std::string TableTuple::debugNoHeader() const {
     assert(m_schema);
-    assert(m_data);
     return debug("");
 }
 

@@ -249,6 +249,9 @@ TableTuple CoveringCellIndex::nextValueAtKey(IndexCursor& cursor) const
 
 
 bool CoveringCellIndex::deleteEntryDo(const TableTuple *tuple) {
+    std::cout << "CoveringCellIndex::deleteEntryDo: initial tuple data is "
+              << (tuple->m_data ? "not " : "")
+              << "null.\n";
     NValue nval = tuple->getNValue(m_columnIndex);
     if (nval.isNull()) {
         // null polygons are not indexed.
@@ -258,6 +261,9 @@ bool CoveringCellIndex::deleteEntryDo(const TableTuple *tuple) {
     TupleMapIterator it = m_tupleEntries.find(setKeyFromTuple(tuple));
     if (it.isEnd()) {
         // This tuple was not in our map
+        std::cout << "CoveringCellIndex::deleteEntryDo: tuple data at end is "
+                  << (tuple->m_data ? "not " : "")
+                  << "null.\n";
         return false;
     }
 
@@ -270,6 +276,9 @@ bool CoveringCellIndex::deleteEntryDo(const TableTuple *tuple) {
         m_cellEntries.erase(cellIter);
     }
 
+    std::cout << "CoveringCellIndex::deleteEntryDo: initial tuple data is "
+              << (tuple->m_data ? "not " : "")
+              << "null.\n";
     m_tupleEntries.erase(it);
     return true;
 }

@@ -86,6 +86,9 @@ class CompactingTreeUniqueIndex : public TableIndex
     bool deleteEntryDo(const TableTuple *tuple)
     {
         ++m_deletes;
+        std::cout << "CompactingTreeUniqueIndex::deleteEntryDo: tuple data is "
+                  << (tuple->m_data ? "not " : "")
+                  << "null.\n";
         return m_entries.erase(setKeyFromTuple(tuple));
     }
 
