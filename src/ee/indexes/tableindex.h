@@ -248,6 +248,12 @@ public:
     bool exists(const TableTuple* values) const;
 
     /**
+     * Returns true if this index supports the exist function.
+     * Covering indexes do not.
+     * @return
+     */
+    virtual bool supportsExists() const;
+    /**
      * This method moves to the first tuple equal to given key.  To
      * iterate through all entries with the key (if non-unique index)
      * or all entries that follow the entry, use nextValueAtKey() and

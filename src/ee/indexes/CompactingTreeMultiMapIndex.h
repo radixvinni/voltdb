@@ -86,20 +86,18 @@ class CompactingTreeMultiMapIndex : public TableIndex
 
     bool deleteEntryDo(const TableTuple *tuple)
     {
-        std::cout << "CompactingTreeMultiMapIndex::deleteEntryDo: initial tuple data is "
-                  << (tuple->m_data ? "not " : "")
-                  << "null.\n";
         ++m_deletes;
+        std::string tupleDebug = tuple->debug();
         MapIterator iter = findTuple(*tuple);
         if (iter.isEnd()) {
             std::cout << "CompactingTreeMultiMapIndex::deleteEntryDo: tuple data at end is "
                       << (tuple->m_data ? "not " : "")
                       << "null.\n";
+            if (tuple->m_data) {
+                std::cout << "  tuple: " << tuple->debug() << "\n";
+            }
             return false;
         }
-        std::cout << "CompactingTreeMultiMapIndex::deleteEntryDo: final tuple data is "
-                  << (tuple->m_data ? "not " : "")
-                  << "null.\n";
         return m_entries.erase(iter);
     }
 

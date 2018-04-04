@@ -210,6 +210,10 @@ bool TableIndex::replaceEntryNoKeyChange(const TableTuple &destinationTuple, con
     }
 }
 
+bool TableIndex::supportsExists() const {
+    return true;
+}
+
 bool TableIndex::exists(const TableTuple *persistentTuple) const
 {
     if (isPartialIndex() && !getPredicate()->eval(persistentTuple, NULL).isTrue())

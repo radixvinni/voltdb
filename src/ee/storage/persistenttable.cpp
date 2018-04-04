@@ -318,6 +318,54 @@ void PersistentTable::nextFreeTuple(TableTuple* tuple) {
     }
 }
 
+void PersistentTable::debugAllIndexes() {
+    // nothing interesting
+    TableIterator ti(this, m_data.begin());
+    TableTuple tuple(m_schema);
+    while (ti.next(tuple)) {
+        if (!tuple.m_data) {
+            std::cout << "Tuple with no data!!\n";
+            PRINT_STACK_TRACE();
+        } else {
+            debugAllIndexesOneTuple(tuple);
+        }
+    }
+}
+
+void PersistentTable::debugAllIndexesOneTuple(const TableTuple &tuple) {
+    bool some_errors = false;
+    std::string index_names = "";
+    std::string sep = "";
+    // Not interesting for matviews.
+    if (m_isMaterialized) {
+        return;
+    }
+    BOOST_FOREACH (auto index, m_indexes) {
+        if (index->supportsExists() && !index->exists(&tuple)) {
+            PRINT_STACK_TRACE();
+            std::cout << "Tuple not found in index: \n"
+                      << "  " << tuple.debug() << std::endl
+                      << "  tuple is " << (tuple.m_data ? "not null\n" : "null\n")
+                      << "  from table: "
+                      << m_name
+                      << std::endl
+                      << "  from index: "
+                      << index->getName()
+                      << ": "
+                      << index->debug()
+                      << std::endl;
+            some_errors = true;
+            index_names = index_names + sep + index->getName();
+            sep = ", ";
+        }
+    }
+    if (some_errors) {
+        throwFatalException(
+                "Tuple index error: %s Index %s",
+                m_name.c_str(), index_names.c_str());
+    }
+}
+
 void PersistentTable::deleteAllTuples(bool, bool fallible) {
     // Instead of recording each tuple deletion, log it as a table truncation DR.
     ExecutorContext* ec = ExecutorContext::getExecutorContext();
@@ -352,6 +400,7 @@ void PersistentTable::deleteAllTuples(bool, bool fallible) {
         }
     }
 }
+
 
 bool PersistentTable::doDRActions(AbstractDRTupleStream* drStream) {
     return m_drEnabled && drStream && drStream->drStreamStarted();
@@ -833,6 +882,7 @@ void PersistentTable::insertPersistentTuple(TableTuple& source, bool fallible, b
         deleteTupleStorage(target); // also frees object columns
         throw;
     }
+    debugAllIndexesOneTuple(target);
 }
 
 void PersistentTable::doInsertTupleCommon(TableTuple& source, TableTuple& target,
@@ -1452,22 +1502,18 @@ void PersistentTable::insertIntoAllIndexes(TableTuple* tuple) {
 
 void PersistentTable::deleteFromAllIndexes(TableTuple* tuple) {
     BOOST_FOREACH (auto index, m_indexes) {
-        assert(tuple->m_data);
         if (!index->deleteEntry(tuple)) {
             PRINT_STACK_TRACE();
-            std::cout << "Fatal error deleting tuple: "
-                    /*
-                      << std::endl
+            std::cout << "Fatal error deleting tuple: \n"
+                      << "  " << tuple->debug() << std::endl
+                      << "  tuple is " << (tuple->m_data ? "not null\n" : "null\n")
                       << "  from table: "
                       << m_name
-                      << ": "
-                      << debug()
                       << std::endl
                       << "  from index: "
                       << index->getName()
                       << ": "
                       << index->debug()
-                    */
                       << std::endl;
             throwFatalException(
                     "Failed to delete tuple in Table: %s Index %s",

@@ -202,6 +202,7 @@ class CoveringCellIndex : public TableIndex {
      */
     StatsForTest getStatsForTest(PersistentTable *table) const;
 
+    bool supportsExists() const;
  protected:
 
     /**

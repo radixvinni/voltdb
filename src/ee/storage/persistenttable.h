@@ -328,6 +328,19 @@ public:
 
     void insertPersistentTuple(TableTuple& source, bool fallible, bool ignoreTupleLimit = false);
 
+    /**
+     * Check that all rows in this table which should
+     * be in indexes are actually in the indexes.
+     */
+    void debugAllIndexes();
+    /**
+     * Check that a given row in this table which should
+     * be in an index is actually in all the indexes.
+     *
+     * @param tuple The tuple to check.
+     */
+    void debugAllIndexesOneTuple(const TableTuple &tuple);
+
     /// This is not used in any production code path -- it is a convenient wrapper used by tests.
     bool updateTuple(TableTuple& targetTupleToUpdate, TableTuple& sourceTupleWithNewValues) {
         updateTupleWithSpecificIndexes(targetTupleToUpdate, sourceTupleWithNewValues, m_indexes, true);

@@ -80,20 +80,17 @@ class CompactingHashMultiMapIndex : public TableIndex
 
     bool deleteEntryDo(const TableTuple *tuple)
     {
-        std::cout << "CompactingHashMultiMapIndex::deleteEntryDo: initial tuple data is "
-                  << (tuple->m_data ? "not " : "")
-                  << "null.\n";
         ++m_deletes;
         MapIterator iter = findTuple(*tuple);
         if (iter.isEnd()) {
             std::cout << "CompactingHashMultiMapIndex::deleteEntryDo: tuple data at end is "
                       << (tuple->m_data ? "not " : "")
                       << "null.\n";
+            if (tuple->m_data) {
+                std::cout << "  Tuple: " << tuple->debug() << "\n";
+            }
             return false;
         }
-        std::cout << "CompactingHashMultiMapIndex::deleteEntryDo: final tuple data is "
-                  << (tuple->m_data ? "not " : "")
-                  << "null.\n";
         return m_entries.erase(iter);
     }
 

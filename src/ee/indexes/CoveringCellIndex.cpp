@@ -249,9 +249,6 @@ TableTuple CoveringCellIndex::nextValueAtKey(IndexCursor& cursor) const
 
 
 bool CoveringCellIndex::deleteEntryDo(const TableTuple *tuple) {
-    std::cout << "CoveringCellIndex::deleteEntryDo: initial tuple data is "
-              << (tuple->m_data ? "not " : "")
-              << "null.\n";
     NValue nval = tuple->getNValue(m_columnIndex);
     if (nval.isNull()) {
         // null polygons are not indexed.
@@ -276,9 +273,6 @@ bool CoveringCellIndex::deleteEntryDo(const TableTuple *tuple) {
         m_cellEntries.erase(cellIter);
     }
 
-    std::cout << "CoveringCellIndex::deleteEntryDo: initial tuple data is "
-              << (tuple->m_data ? "not " : "")
-              << "null.\n";
     m_tupleEntries.erase(it);
     return true;
 }
@@ -481,6 +475,10 @@ CoveringCellIndex::StatsForTest CoveringCellIndex::getStatsForTest(PersistentTab
 
 CoveringCellIndex::~CoveringCellIndex()
 {
+}
+
+bool CoveringCellIndex::supportsExists() const {
+    return false;
 }
 
 } // end namespace voltdb

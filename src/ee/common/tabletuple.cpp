@@ -56,10 +56,14 @@ namespace voltdb {
 
 std::string TableTuple::debug(const std::string& tableName,
                               bool skipNonInline) const {
-    assert(m_schema);
-    assert(m_data);
-
     std::ostringstream buffer;
+    if (!m_data) {
+        return "Tuple with no data.";
+    }
+    if (!m_schema) {
+        return "Tuple with no schema.";
+    }
+
     if (tableName.empty()) {
         buffer << "TableTuple(no table) ->";
     } else {

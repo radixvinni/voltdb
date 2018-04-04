@@ -417,7 +417,7 @@ while [[ -n "$1" ]]; do
             BUILD_ARGS=$ARGS
         fi
     fi
-    $CMD
+    $CMD $ARGS
     shift
 done
 exit-with-code
