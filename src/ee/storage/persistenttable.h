@@ -329,6 +329,10 @@ public:
     void insertPersistentTuple(TableTuple& source, bool fallible, bool ignoreTupleLimit = false);
 
     /**
+     * Check that all the data in all indexes is well defined.
+     */
+    void debugAllIndexData();
+    /**
      * Check that all rows in this table which should
      * be in indexes are actually in the indexes.
      */

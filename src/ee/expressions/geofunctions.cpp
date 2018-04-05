@@ -657,13 +657,13 @@ template<> NValue NValue::callUnary<FUNC_VOLT_MAKE_VALID_POLYGON>() const {
 }
 
 template<> NValue NValue::call<FUNC_VOLT_DWITHIN_POLYGON_POINT>(const std::vector<NValue>& arguments) {
-    assert(arguments[0].getValueType() == VALUE_TYPE_GEOGRAPHY);
-    assert(arguments[1].getValueType() == VALUE_TYPE_POINT);
-    assert(isNumeric(arguments[2].getValueType()));
-
     if (arguments[0].isNull() || arguments[1].isNull() || arguments[2].isNull()) {
         return NValue::getNullValue(VALUE_TYPE_BOOLEAN);
     }
+
+    assert(arguments[0].getValueType() == VALUE_TYPE_GEOGRAPHY);
+    assert(arguments[1].getValueType() == VALUE_TYPE_POINT);
+    assert(isNumeric(arguments[2].getValueType()));
 
     Polygon polygon;
     polygon.initFromGeography(arguments[0].getGeographyValue());

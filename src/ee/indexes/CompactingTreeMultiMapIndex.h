@@ -433,6 +433,33 @@ public:
         m_entries(false, KeyComparator(keySchema)),
         m_cmp(keySchema)
     {}
+
+    void debugAllData(const std::string &index_name) const {
+        int pos = 0;
+        std::cout << "CompactingTreeMultiMapIndex::debugAllData("
+                  << index_name
+                  << ") start with "
+                  << getSize()
+                  << " entries."
+                  << std::endl;
+        for (auto iter = m_entries.begin(); !iter.isEnd();) {
+            TableTuple retval(getTupleSchema());
+            retval.move(const_cast<void*>(iter.value()));
+            if (retval.m_data == NULL) {
+                std::cout << "Empty tuple in index "
+                          << index_name
+                          << " at position "
+                          << pos << "."
+                          << std::endl;
+                PRINT_STACK_TRACE();
+            }
+            iter.moveNext();
+            pos += 1;
+        }
+        std::cout << "CompactingTreeMultiMapIndex::debugAllData("
+                  << index_name
+                  << ") end.\n";
+    }
 };
 
 }

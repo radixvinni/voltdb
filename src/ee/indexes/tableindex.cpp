@@ -238,6 +238,13 @@ bool TableIndex::existsOrFiltered(const TableTuple *persistentTuple) const
     return existsDo(persistentTuple);
 }
 
+/**
+ * Don't do anything here.  We are only interested in CompactingTreeMultiMapIndex.
+ */
+void TableIndex::debugAllData(const std::string &index_name) const {
+}
+
+
 bool TableIndex::checkForIndexChange(const TableTuple *lhs, const TableTuple *rhs) const {
     if (isPartialIndex()) {
         const AbstractExpression* predicate = getPredicate();

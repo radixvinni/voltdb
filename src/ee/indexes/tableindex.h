@@ -260,6 +260,11 @@ public:
      */
     bool existsOrFiltered(const TableTuple* values) const;
     /**
+     * Check that all data is well defined.
+     */
+    virtual void debugAllData(const std::string &index_name) const;
+
+    /**
      * This method moves to the first tuple equal to given key.  To
      * iterate through all entries with the key (if non-unique index)
      * or all entries that follow the entry, use nextValueAtKey() and

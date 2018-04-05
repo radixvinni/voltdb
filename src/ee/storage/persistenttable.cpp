@@ -320,7 +320,6 @@ void PersistentTable::nextFreeTuple(TableTuple* tuple) {
 }
 
 void PersistentTable::debugAllIndexes() {
-    // nothing interesting
     TableIterator ti(this, m_data.begin());
     TableTuple tuple(m_schema);
     while (ti.next(tuple)) {
@@ -333,7 +332,13 @@ void PersistentTable::debugAllIndexes() {
     }
 }
 
+void PersistentTable::debugAllIndexData() {
+    BOOST_FOREACH(auto index, m_indexes) {
+        index->debugAllData(index->getName());
+    }
+}
 void PersistentTable::debugAllIndexesOneTuple(const TableTuple &tuple) {
+    debugAllIndexData();
     bool some_errors = false;
     std::string index_names = "";
     std::string sep = "";
