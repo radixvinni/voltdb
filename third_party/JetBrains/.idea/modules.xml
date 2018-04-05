@@ -3,23 +3,23 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/JetBrains.iml" filepath="$PROJECT_DIR$/JetBrains.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../examples/adperformance/adperformance.iml" filepath="$PROJECT_DIR$/../../examples/adperformance/adperformance.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../examples/bank-offers/bank-offers.iml" filepath="$PROJECT_DIR$/../../examples/bank-offers/bank-offers.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../examples/callcenter/callcenter.iml" filepath="$PROJECT_DIR$/../../examples/callcenter/callcenter.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../examples/contentionmark/contentionmark.iml" filepath="$PROJECT_DIR$/../../examples/contentionmark/contentionmark.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../examples/fraud-detection/fraud-detection.iml" filepath="$PROJECT_DIR$/../../examples/fraud-detection/fraud-detection.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../examples/geospatial/geospatial.iml" filepath="$PROJECT_DIR$/../../examples/geospatial/geospatial.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../examples/json-sessions/json-sessions.iml" filepath="$PROJECT_DIR$/../../examples/json-sessions/json-sessions.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../examples/metrocard/metrocard.iml" filepath="$PROJECT_DIR$/../../examples/metrocard/metrocard.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../examples/nbbo/nbbo.iml" filepath="$PROJECT_DIR$/../../examples/nbbo/nbbo.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../examples/positionkeeper/positionkeeper.iml" filepath="$PROJECT_DIR$/../../examples/positionkeeper/positionkeeper.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../examples/adperformance/examples.adperformance.iml" filepath="$PROJECT_DIR$/../../examples/adperformance/examples.adperformance.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../examples/bank-offers/examples.bank-offers.iml" filepath="$PROJECT_DIR$/../../examples/bank-offers/examples.bank-offers.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../examples/callcenter/examples.callcenter.iml" filepath="$PROJECT_DIR$/../../examples/callcenter/examples.callcenter.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../examples/contentionmark/examples.contentionmark.iml" filepath="$PROJECT_DIR$/../../examples/contentionmark/examples.contentionmark.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../examples/fraud-detection/examples.fraud-detection.iml" filepath="$PROJECT_DIR$/../../examples/fraud-detection/examples.fraud-detection.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../examples/geospatial/examples.geospatial.iml" filepath="$PROJECT_DIR$/../../examples/geospatial/examples.geospatial.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../examples/json-sessions/examples.json-sessions.iml" filepath="$PROJECT_DIR$/../../examples/json-sessions/examples.json-sessions.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../examples/metrocard/examples.metrocard.iml" filepath="$PROJECT_DIR$/../../examples/metrocard/examples.metrocard.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../examples/nbbo/examples.nbbo.iml" filepath="$PROJECT_DIR$/../../examples/nbbo/examples.nbbo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../examples/positionkeeper/examples.positionkeeper.iml" filepath="$PROJECT_DIR$/../../examples/positionkeeper/examples.positionkeeper.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../examples/uniquedevices/examples.uniquedevices.iml" filepath="$PROJECT_DIR$/../../examples/uniquedevices/examples.uniquedevices.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../examples/voltkv/examples.voltkv.iml" filepath="$PROJECT_DIR$/../../examples/voltkv/examples.voltkv.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../examples/voter/examples.voter.iml" filepath="$PROJECT_DIR$/../../examples/voter/examples.voter.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../examples/windowing/examples.windowing.iml" filepath="$PROJECT_DIR$/../../examples/windowing/examples.windowing.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../examples/windowing-with-ddl/examples.windowing-with-ddl.iml" filepath="$PROJECT_DIR$/../../examples/windowing-with-ddl/examples.windowing-with-ddl.iml" />
       <module fileurl="file://$PROJECT_DIR$/../../../pro/pro.iml" filepath="$PROJECT_DIR$/../../../pro/pro.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../examples/uniquedevices/uniquedevices.iml" filepath="$PROJECT_DIR$/../../examples/uniquedevices/uniquedevices.iml" />
       <module fileurl="file://$PROJECT_DIR$/../../voltdb.iml" filepath="$PROJECT_DIR$/../../voltdb.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../examples/voltkv/voltkv.iml" filepath="$PROJECT_DIR$/../../examples/voltkv/voltkv.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../examples/voter/voter.iml" filepath="$PROJECT_DIR$/../../examples/voter/voter.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../examples/windowing/windowing.iml" filepath="$PROJECT_DIR$/../../examples/windowing/windowing.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../examples/windowing-with-ddl/windowing-with-ddl.iml" filepath="$PROJECT_DIR$/../../examples/windowing-with-ddl/windowing-with-ddl.iml" />
     </modules>
   </component>
 </project>

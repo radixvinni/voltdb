@@ -83,4 +83,6 @@ tools/meshmonitor/dist/
 cmake-build-*/
 .idea/workspace.xml
 .idea/tasks.xml
+third_party/JetBrains/.idea/workspace.xml
+third_party/JetBrains/.idea/tasks.xml
 

@@ -14,6 +14,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Python 2.7 interpreter library" level="application" />
-    <orderEntry type="module" module-name="adperformance" />
+    <orderEntry type="module" module-name="examples.adperformance" />
   </component>
 </module>
