@@ -253,6 +253,12 @@ public:
      * @return
      */
     virtual bool supportsExists() const;
+
+    /**
+     * just returns whether the value is already stored,
+     * or if it is filtered out of the index.
+     */
+    bool existsOrFiltered(const TableTuple* values) const;
     /**
      * This method moves to the first tuple equal to given key.  To
      * iterate through all entries with the key (if non-unique index)

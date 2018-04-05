@@ -42,7 +42,21 @@ pthread_key_t m_stringKey;
  * Thread local key for storing integer value of amount of memory allocated
  */
 pthread_key_t m_allocatedKey;
+/**
+ * Thread local key for storing the partition id of the thread
+ * on whose is doing the work.  Generally this is the
+ * same as the value of m_enginePartitionIdKey.  But if work
+ * is being done by one thread on behalf of another, free rider
+ * thread, then this will contain the thread id of the working thread.
+ */
 pthread_key_t m_threadPartitionIdKey;
+/**
+ * Thread local key for storing the partition id of the thread
+ * on whose behalf work is being done.  Generally this is the
+ * same as the value of m_threadPartitionIdKey.  But if work
+ * is being done by one thread on behalf of another, free rider
+ * thread, then this will contain the thread id of the "free rider" thread.
+ */
 pthread_key_t m_enginePartitionIdKey;
 pthread_once_t m_keyOnce = PTHREAD_ONCE_INIT;
 
@@ -595,6 +609,9 @@ void ThreadLocalPool::setPartitionIds(int32_t partitionId) {
     *pidPtr = partitionId;
 }
 
+/*
+ * See the declaration for documentation.
+ */
 int32_t ThreadLocalPool::getThreadPartitionId() {
     int32_t *ptrToPartitionId = static_cast< int32_t* >(pthread_getspecific(m_threadPartitionIdKey));
     if (ptrToPartitionId == NULL) {
@@ -604,10 +621,30 @@ int32_t ThreadLocalPool::getThreadPartitionId() {
     return *ptrToPartitionId;
 }
 
+/*
+ * See the declaration for documentation.
+ */
 int32_t ThreadLocalPool::getEnginePartitionId() {
     int32_t partitionId =
         *static_cast< int32_t* >(pthread_getspecific(m_enginePartitionIdKey));
     return partitionId;
+}
+
+/*
+ * See the declaration for documentation.
+ */
+std::string ThreadLocalPool::siteIdString() {
+    int32_t thread_id = getThreadPartitionId();
+    int32_t engine_id = getEnginePartitionId();
+    std::ostringstream buffer;
+    buffer << "Siteid@{";
+    if (thread_id == engine_id) {
+        buffer << thread_id;
+    } else {
+        buffer << thread_id << " for " << engine_id;
+    }
+    buffer << "}";
+    return buffer.str();
 }
 
 char * voltdb_pool_allocator_new_delete::malloc(const size_type bytes) {

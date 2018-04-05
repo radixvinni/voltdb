@@ -49,6 +49,7 @@
 #include "common/tabletuple.h"
 #include "common/common.h"
 #include "common/debuglog.h"
+#include "common/ThreadLocalPool.h"
 #include "common/FatalException.hpp"
 #include "tabletuple.h"
 
@@ -57,54 +58,51 @@ namespace voltdb {
 std::string TableTuple::debug(const std::string& tableName,
                               bool skipNonInline) const {
     std::ostringstream buffer;
+    buffer << ThreadLocalPool::siteIdString() << ": ";
     if (!m_data) {
-        return "Tuple with no data.";
-    }
-    if (!m_schema) {
-        return "Tuple with no schema.";
-    }
-
-    if (tableName.empty()) {
-        buffer << "TableTuple(no table) ->";
+        buffer << "Tuple with no data.";
+    } else if (!m_schema) {
+        buffer << "Tuple with no schema.";
     } else {
-        buffer << "TableTuple(" << tableName << ") ->";
-    }
-
-    if (isActive() == false) {
-        buffer << " <DELETED> ";
-    }
-    for (int ctr = 0; ctr < m_schema->columnCount(); ctr++) {
-        buffer << "(";
-        const TupleSchema::ColumnInfo *colInfo = m_schema->getColumnInfo(ctr);
-        if (isVariableLengthType(colInfo->getVoltType()) && !colInfo->inlined && skipNonInline) {
-            StringRef* sr = *reinterpret_cast<StringRef**>(getWritableDataPtr(colInfo));
-            buffer << "<non-inlined value @" << static_cast<void*>(sr) << ">";
+        if (tableName.empty()) {
+            buffer << "TableTuple(no table) ->";
+        } else {
+            buffer << "TableTuple(" << tableName << ") ->";
         }
-        else {
-            buffer << getNValue(ctr).debug();
+
+        if (isActive() == false) {
+            buffer << " <DELETED> ";
         }
-        buffer << ")";
-    }
-
-    if (m_schema->hiddenColumnCount() > 0) {
-        buffer << " hidden->";
-
-        for (int ctr = 0; ctr < m_schema->hiddenColumnCount(); ctr++) {
+        for (int ctr = 0; ctr < m_schema->columnCount(); ctr++) {
             buffer << "(";
-            const TupleSchema::ColumnInfo* colInfo = m_schema->getHiddenColumnInfo(ctr);
+            const TupleSchema::ColumnInfo *colInfo = m_schema->getColumnInfo(ctr);
             if (isVariableLengthType(colInfo->getVoltType()) && !colInfo->inlined && skipNonInline) {
-                StringRef* sr = *reinterpret_cast<StringRef**>(getWritableDataPtr(colInfo));
-                buffer << "<non-inlined value @" << static_cast<void*>(sr) << ">";
-            }
-            else {
-                buffer << getHiddenNValue(ctr).debug();
+                StringRef *sr = *reinterpret_cast<StringRef **>(getWritableDataPtr(colInfo));
+                buffer << "<non-inlined value @" << static_cast<void *>(sr) << ">";
+            } else {
+                buffer << getNValue(ctr).debug();
             }
             buffer << ")";
         }
+
+        if (m_schema->hiddenColumnCount() > 0) {
+            buffer << " hidden->";
+
+            for (int ctr = 0; ctr < m_schema->hiddenColumnCount(); ctr++) {
+                buffer << "(";
+                const TupleSchema::ColumnInfo *colInfo = m_schema->getHiddenColumnInfo(ctr);
+                if (isVariableLengthType(colInfo->getVoltType()) && !colInfo->inlined && skipNonInline) {
+                    StringRef *sr = *reinterpret_cast<StringRef **>(getWritableDataPtr(colInfo));
+                    buffer << "<non-inlined value @" << static_cast<void *>(sr) << ">";
+                } else {
+                    buffer << getHiddenNValue(ctr).debug();
+                }
+                buffer << ")";
+            }
+        }
+
+        buffer << " @" << static_cast<const void *>(address());
     }
-
-    buffer << " @" << static_cast<const void*>(address());
-
     return buffer.str();
 }
 

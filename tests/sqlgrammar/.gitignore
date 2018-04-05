@@ -1,0 +1,6 @@
+/sqlcmd[0-9][0-9]*.in
+/sqlcmd.in
+/*.out
+/*.jar
+/jrun*
+/vdb_script.txt

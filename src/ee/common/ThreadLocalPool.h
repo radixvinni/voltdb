@@ -155,6 +155,14 @@ public:
     static int32_t getEnginePartitionId();
 
     /**
+     * A string used for error messages which prints partition ids.
+     * A simple numeric string is the case when a thread is doing its
+     * own work.  A pair "t1 for t2" is the case when site t1 is working
+     * on behalf of site t2.
+     * @return
+     */
+    static std::string siteIdString();
+    /**
      * Allocate space from a page of objects of approximately the requested
      * size. There will be relatively small gaps of unused space between the
      * objects. This is caused by aligning them to a slightly larger size.

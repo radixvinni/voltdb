@@ -224,6 +224,20 @@ bool TableIndex::exists(const TableTuple *persistentTuple) const
     return existsDo(persistentTuple);
 }
 
+bool TableIndex::existsOrFiltered(const TableTuple *persistentTuple) const
+{
+    if ( ! supportsExists() ) {
+        return true;
+    }
+    if (isPartialIndex() && !getPredicate()->eval(persistentTuple, NULL).isTrue())
+    {
+        // Tuple fails the predicate. This
+        // is filtered out, so it's ok with us.
+        return true;
+    }
+    return existsDo(persistentTuple);
+}
+
 bool TableIndex::checkForIndexChange(const TableTuple *lhs, const TableTuple *rhs) const {
     if (isPartialIndex()) {
         const AbstractExpression* predicate = getPredicate();

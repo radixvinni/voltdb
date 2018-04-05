@@ -74,6 +74,7 @@
 #include "common/types.h"
 #include "common/RecoveryProtoMessage.h"
 #include "common/StreamPredicateList.h"
+#include "common/ThreadLocalPool.h"
 #include "common/ValueFactory.hpp"
 #include "catalog/catalog.h"
 #include "catalog/database.h"
@@ -341,9 +342,10 @@ void PersistentTable::debugAllIndexesOneTuple(const TableTuple &tuple) {
         return;
     }
     BOOST_FOREACH (auto index, m_indexes) {
-        if (index->supportsExists() && !index->exists(&tuple)) {
+        if (!index->existsOrFiltered(&tuple)) {
             PRINT_STACK_TRACE();
-            std::cout << "Tuple not found in index: \n"
+            std::cout << ThreadLocalPool::siteIdString()
+                      << "Tuple not found in index: \n"
                       << "  " << tuple.debug() << std::endl
                       << "  tuple is " << (tuple.m_data ? "not null\n" : "null\n")
                       << "  from table: "
