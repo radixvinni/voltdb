@@ -280,6 +280,8 @@ CompactingStringStorage &getStringPoolMap() {
 
 ThreadLocalPool::Sized* ThreadLocalPool::allocateRelocatable(char** referrer, int32_t sz)
 {
+    assert(getEnginePartitionId()!= SynchronizedThreadLock::s_mpMemoryPartitionId ||
+           SynchronizedThreadLock::isInSingleThreadMode() || SynchronizedThreadLock::isHoldingResourceLock());
     // The size provided to this function determines the
     // approximate-size-specific pool selection. It gets
     // reflected (after rounding and padding) in the size
@@ -325,6 +327,8 @@ int32_t ThreadLocalPool::getAllocationSizeForRelocatable(Sized* sized)
 
 void ThreadLocalPool::freeRelocatable(Sized* sized)
 {
+    assert(getEnginePartitionId()!= SynchronizedThreadLock::s_mpMemoryPartitionId ||
+           SynchronizedThreadLock::isInSingleThreadMode() || SynchronizedThreadLock::isHoldingResourceLock());
     // use the cached size to find the right pool.
     int32_t alloc_size = getAllocationSizeForObject(sized->m_size);
     CompactingStringStorage& poolMap = getStringPoolMap();
@@ -353,6 +357,8 @@ void ThreadLocalPool::freeRelocatable(Sized* sized)
 
 void* ThreadLocalPool::allocateExactSizedObject(std::size_t sz)
 {
+    assert(getEnginePartitionId()!= SynchronizedThreadLock::s_mpMemoryPartitionId ||
+                   SynchronizedThreadLock::isInSingleThreadMode() || SynchronizedThreadLock::isHoldingResourceLock());
     PoolsByObjectSize& pools =
             *(static_cast< PoolPairTypePtr >(pthread_getspecific(m_key))->second);
     PoolsByObjectSize::iterator iter = pools.find(sz);
@@ -470,6 +476,8 @@ StackTrace* ThreadLocalPool::getStackTraceFor(int32_t engineId, std::size_t sz, 
 
 void ThreadLocalPool::freeExactSizedObject(std::size_t sz, void* object)
 {
+    assert(getEnginePartitionId()!= SynchronizedThreadLock::s_mpMemoryPartitionId ||
+           SynchronizedThreadLock::isInSingleThreadMode() || SynchronizedThreadLock::isHoldingResourceLock());
 #ifdef VOLT_POOL_CHECKING
     int32_t engineId = getEnginePartitionId();
     VOLT_DEBUG("Deallocating %p of size %lu on engine %d, thread %d", object, sz,
