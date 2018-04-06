@@ -30,6 +30,10 @@ public class udfs {
         return i + j;
     }
 
+    public long identityInt(long i) {
+        return i;
+    }
+
     public byte[] identityVarbin(byte[] z) {
         // return a varbinary without change
         return z;

@@ -38,7 +38,7 @@ public class ReplicatedUpdateBaseProc extends UpdateBaseProc {
             "SELECT * FROM adhocr ORDER BY ts DESC, id LIMIT 1");
 
     public final SQLStmt r_insert = new SQLStmt(
-            "INSERT INTO replicated (txnid, prevtxnid, ts, cid, cidallhash, rid, cnt, adhocinc, adhocjmp, value) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+            "INSERT INTO replicated (txnid, prevtxnid, ts, cid, cidallhash, rid, cnt, adhocinc, adhocjmp, value) VALUES (?, ?, ?, ?+0, ?, abs(?), identityInt(?), ?, ?, ?);");
 
     public final SQLStmt r_update = new SQLStmt(
             "UPDATE replicated set txnid=?, prevtxnid=?, ts=?, cidallhash=?, rid=add2Bigint(?,0), cnt=add2Bigint(cnt,1), adhocinc=?, adhocjmp=?, value=identityVarbin(value) where cid=? and rid=?");

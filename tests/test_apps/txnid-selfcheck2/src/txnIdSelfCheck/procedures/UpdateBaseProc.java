@@ -46,7 +46,7 @@ public class UpdateBaseProc extends VoltProcedure {
             "SELECT * FROM adhocp ORDER BY ts DESC, id LIMIT 1");
 
     public final SQLStmt p_insert = new SQLStmt(
-            "INSERT INTO partitioned (txnid, prevtxnid, ts, cid, cidallhash, rid, cnt, adhocinc, adhocjmp, value) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+            "INSERT INTO partitioned (txnid, prevtxnid, ts, cid, cidallhash, rid, cnt, adhocinc, adhocjmp, value) VALUES (?, ?, ?, ?+0, ?, abs(?), identityInt(?), ?, ?, ?);");
 
     public final SQLStmt p_update = new SQLStmt(
             "UPDATE partitioned set txnid=?, prevtxnid=?, ts=?, cidallhash=?, rid=add2Bigint(?,0), cnt=add2Bigint(cnt,1), adhocinc=?, adhocjmp=?, value=identityVarbin(value) where cid=? and rid=?");
@@ -128,7 +128,7 @@ public class UpdateBaseProc extends VoltProcedure {
         // check the rids monotonically increase
         // we should never be off by more than one transaction,
         // ie. one transaction could have been lost in a node or cluster kill
-        if (prevrid < rid-3) {
+        if (prevrid >= rid) {
             throw new VoltAbortException(getClass().getName() +
                     " previous rid " + prevrid +
                     " >= than current rid " + rid +
