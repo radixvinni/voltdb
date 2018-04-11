@@ -1,7 +1,7 @@
 VoltDB version for Winodws (MSYS2\Cygwin-x86_64)
 ====================
 
-This fork aims to porting VoltDB Community edition to Windows newer then XP. I used MSYS2. It will mostly build on MinGW too, but it would need some port for posix sockets 
+This fork aims to porting VoltDB Community edition to Windows newer than XP. I used MSYS2. It will mostly build on MinGW too, but it would need some port for posix sockets 
 support, [mman-win32](https://code.google.com/archive/p/mman-win32/) and [dlfcn-win32](https://github.com/dlfcn-win32/dlfcn-win32). All this included in msys2 runtime dll.
 
 Building VoltDB
