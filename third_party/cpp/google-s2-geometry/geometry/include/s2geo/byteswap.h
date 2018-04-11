@@ -17,6 +17,26 @@
    02111-1307 USA.  */
 
 #ifndef _BYTESWAP_H
+#ifdef __MINGW64__
+#endif
+static __inline unsigned short
+__bswap_16 (unsigned short __x)
+{
+  return (__x >> 8) | (__x << 8);
+}
+
+static __inline unsigned int
+__bswap_32 (unsigned int __x)
+{
+  return (__bswap_16 (__x & 0xffff) << 16) | (__bswap_16 (__x >> 16));
+}
+
+static __inline unsigned long long
+__bswap_64 (unsigned long long __x)
+{
+  return (((unsigned long long) __bswap_32 (__x & 0xffffffffull)) << 32) | (__bswap_32 (__x >> 32));
+}
+
 #define _BYTESWAP_H 1
 
 /* The following definitions must all be macros since otherwise some
@@ -28,7 +48,7 @@
 /* Return a value with all bytes in the 32 bit argument swapped.  */
 #define bswap_32(x) __bswap_32 (x)
 
-#if defined __GNUC__ && __GNUC__ >= 2
+#if defined __GNUC__ && __GNUC__ >= 2 || defined __MINGW64__
 /* Return a value with all bytes in the 64 bit argument swapped.  */
 # define bswap_64(x) __bswap_64 (x)
 #endif

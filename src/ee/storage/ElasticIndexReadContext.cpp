@@ -197,7 +197,7 @@ bool ElasticIndexReadContext::parseHashRange(
     if (predicateStrings.size() != 1) {
         char errMsg[1024 * 16];
         snprintf(errMsg, 1024 * 16,
-                 "Too many ElasticIndexReadContext predicates (>1): %ld",
+                 "Too many ElasticIndexReadContext predicates (>1): %zd",
                  predicateStrings.size());
         LogManager::getThreadLogger(LOGGERID_HOST)->log(LOGLEVEL_ERROR, errMsg);
     }

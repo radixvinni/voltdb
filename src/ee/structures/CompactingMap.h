@@ -26,6 +26,7 @@
 #include <limits>
 #include <cassert>
 
+typedef uint32_t u_int32_t;
 typedef u_int32_t NodeCount;
 
 #ifndef SUBCTMAX

@@ -536,7 +536,7 @@ class NValue {
             char nextPotentialCodePoint[] = { 0, 0, 0, 0, 0, 0 };
             char *nextPotentialCodePointIter = nextPotentialCodePoint;
             //Copy 6 bytes or until the end
-            ::memcpy( nextPotentialCodePoint, m_cursor, std::min( 6L, m_end - m_cursor));
+            ::memcpy( nextPotentialCodePoint, m_cursor, std::min( 6LL, m_end - m_cursor));
 
             /*
              * Extract the code point, find out how many bytes it was
@@ -2213,7 +2213,7 @@ private:
         //Scary overflow check from https://www.securecoding.cert.org/confluence/display/cplusplus/INT32-CPP.+Ensure+that+operations+on+signed+integers+do+not+result+in+overflow
         if ( ((lhs^rhs)
                 | (((lhs^(~(lhs^rhs)
-                  & (1L << (sizeof(int64_t)*CHAR_BIT-1))))+rhs)^rhs)) >= 0) {
+                  & (1LL << (sizeof(int64_t)*CHAR_BIT-1))))+rhs)^rhs)) >= 0) {
             char message[4096];
             snprintf(message, 4096, "Adding %jd and %jd will overflow BigInt storage", (intmax_t)lhs, (intmax_t)rhs);
             throw SQLException( SQLException::data_exception_numeric_value_out_of_range, message);
@@ -2225,7 +2225,7 @@ private:
         //Scary overflow check from https://www.securecoding.cert.org/confluence/display/cplusplus/INT32-CPP.+Ensure+that+operations+on+signed+integers+do+not+result+in+overflow
         if ( ((lhs^rhs)
                 & (((lhs ^ ((lhs^rhs)
-                  & (1L << (sizeof(int64_t)*CHAR_BIT-1))))-rhs)^rhs)) < 0) {
+                  & (1LL << (sizeof(int64_t)*CHAR_BIT-1))))-rhs)^rhs)) < 0) {
             char message[4096];
             snprintf(message, 4096, "Subtracting %jd from %jd will overflow BigInt storage", (intmax_t)lhs, (intmax_t)rhs);
             throw SQLException( SQLException::data_exception_numeric_value_out_of_range, message);

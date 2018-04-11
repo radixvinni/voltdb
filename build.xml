@@ -1017,7 +1017,8 @@ JAR BUILDING
   <loadfile property='dist.version' srcFile='version.txt'>
       <filterchain><striplinebreaks/></filterchain>
   </loadfile>
-  <exec dir="." executable="tools/getgitinfo.py">
+  <exec dir="." executable="python2">
+      <arg line='tools/getgitinfo.py' />
       <arg line='${dist.version}' />
   </exec>
 </target>
@@ -1200,8 +1201,10 @@ JAVA COMPILATION
     <mkdir dir='${build.testfunc.dir}' />
     <exec
         dir='${src.gpl.dir}/org/voltdb/utils'
-        executable='${src.gpl.dir}/org/voltdb/utils/generate_logkeys.py'
-        failonerror='true' />
+        executable='python2'
+        failonerror='true' >
+        <arg line='${src.gpl.dir}/org/voltdb/utils/generate_logkeys.py'/>
+    </exec>
     <depend
         srcdir="${src.hsqldb.dir}:${src.hsqldb.test.dir}:${src.gpl.dir}:${src.test.dir}:${src.testproc.dir}:${src.testfunc.dir}:${vendor.src.dir}"
         destdir="${build.prod.dir}:${build.test.dir}:${build.testproc.dir}:${build.testfunc.dir}"
@@ -1371,10 +1374,12 @@ NATIVE EE STUFF
 -->
 
 <target name='catalog' description="Generate catalog source code.">
-  <exec dir="${src.catalog.dir}" executable='python' failonerror='true'>
+  <exec dir="${src.catalog.dir}" executable='python2' 
+failonerror='true'>
     <arg line="catalog.py"/>
   </exec>
-  <exec dir="${src.catalog.dir}" executable='python' failonerror='true'>
+  <exec dir="${src.catalog.dir}" executable='python2' 
+failonerror='true'>
     <arg line="install.py"/>
   </exec>
 </target>
@@ -1454,7 +1459,7 @@ NATIVE EE STUFF
         <!-- The tool ${cmake.build.tool} does all the EE building.
              See the comment in that file for complete details.
          -->
-        <arg line="--generator='${cmake.generator}'" />
+        <arg line='--generator="${cmake.generator}"' />
         <arg line="--build-type='${build}'" />
     	<arg line="--log-level='${VOLT_LOG_LEVEL}'" />
         <arg line="--pool-checking='${VOLT_POOL_CHECKING}'" />
@@ -1470,11 +1475,13 @@ NATIVE EE STUFF
 
 <target name='ee' depends="catalog, jnicompile, buildinfo"
     description="Build C++ JNI library and copy it to production folder.">
-    <exec dir='.' executable='${cmake.build.tool}' failonerror='true'>
+    <exec dir='.' executable='python2' failonerror='true'>
+        <arg line='${cmake.build.tool}' />
+
         <!-- The tool ${cmake.build.tool} does all the EE building.
              See the comment in that file for complete details.
          -->
-        <arg line="--generator='${cmake.generator}'" />
+        <arg line='--generator="${cmake.generator}"' />
         <arg line="--build-type='${build}'" />
     	<arg line="--log-level='${VOLT_LOG_LEVEL}'" />
         <arg line="--pool-checking='${VOLT_POOL_CHECKING}'" />
@@ -1549,7 +1556,7 @@ LICENSING
 -->
 
 <target name='licensecheck' description="make sure all source files have approved licenses">
-    <exec dir='.' executable='python' failonerror='true'>
+    <exec dir='.' executable='python2' failonerror='true'>
         <arg line="tools/licensescheck.py" />
         <arg line="${voltpro}"/>
     </exec>
@@ -1568,7 +1575,8 @@ TEST CASES
     <property name='echoserver.command' value="java
     -classpath ${classpath} -server -Xmx256m -ea
     org.voltdb.messaging.EchoServer" />
-    <exec dir='tests/scripts/' executable='python' failonerror='true'>
+    <exec dir='tests/scripts/' executable='python2' 
+failonerror='true'>
         <arg line="Testvoltdbclient.py"/>
         <arg line='"${echoserver.command}"'/>
     </exec>
@@ -1697,7 +1705,7 @@ TEST CASES
              1. ensure a result xml file got written
              2. ensure no whacky processes were stranded -->
         <exec executable="/usr/bin/env">
-            <arg value="python" />
+            <arg value="python2" />
             <arg value="${base.dir}/tools/junit-post-process.py" />
             <arg value="--testname=${testname}" />
             <arg value="--outputpath=${build.testoutput.dir}" />
@@ -1864,7 +1872,7 @@ TEST CASES
         <mkdir dir='${build.testoutput.dir}' />
         <mkdir dir='${build.dir}/testoutput-archive/' />
         <exec executable="/usr/bin/env" failonerror='true'>
-            <arg value="python" />
+            <arg value="python2" />
             <arg value="${base.dir}/tools/junit-pre-process.py" />
             <arg value="--archivepath=${build.dir}/testoutput-archive/" />
             <arg value="--outputpath=${build.testoutput.dir}" />
@@ -2197,7 +2205,7 @@ TEST CASES
         <include name="version.txt"/>
       </fileset>
     </copy>
-    <exec dir='tests/sqlcoverage' executable='python2.7' failonerror="${sqlcoverage.failonerror}">
+    <exec dir='tests/sqlcoverage' executable='python2' failonerror="${sqlcoverage.failonerror}">
         <env key="TEST_DIR" value="${build.testobjects.dir}" />
         <env key="VOLTDB_BUILD_DIR" value="${build.dir}"/>
         <arg line='sql_coverage_test.py' />
@@ -2331,7 +2339,7 @@ TEST CASES
         <isset property="reportpath"/>
     </condition>
 
-    <exec dir='${sqlcmdtest.dir}' executable='python2.7' failonerror="true">
+    <exec dir='${sqlcmdtest.dir}' executable='python2' failonerror="true">
         <arg value='sqlcmdtest.py' />
     </exec>
 </target>
@@ -2353,7 +2361,7 @@ TEST CASES
         <isset property="reportpath"/>
     </condition>
 
-    <exec dir='${sqlcmdtest.dir}' executable='python2.7' failonerror="true">
+    <exec dir='${sqlcmdtest.dir}' executable='python2' failonerror="true">
         <arg value='sqlcmdtest.py' />
         <arg value='--refresh' />
     </exec>

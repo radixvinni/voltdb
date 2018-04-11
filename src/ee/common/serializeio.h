@@ -45,6 +45,15 @@
 
 #ifndef HSTORESERIALIZEIO_H
 #define HSTORESERIALIZEIO_H
+//placing at top to prevent macro redefinition
+#ifndef __MINGW32__
+#include <arpa/inet.h>
+#else
+#include <winsock2.h>
+#undef ARRAYSIZE
+#undef DELETE
+#undef INSERT
+#endif
 
 #include <limits>
 #include <vector>
@@ -54,7 +63,6 @@
 #include <iomanip>
 #include <iostream>
 #include <exception>
-#include <arpa/inet.h>
 #include <cassert>
 #include <boost/ptr_container/ptr_vector.hpp>
 

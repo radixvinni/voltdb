@@ -83,7 +83,9 @@ void globalInitOrCreateOncePerProcess() {
 #endif // LINUX
     // Be explicit about running in the standard C locale for now.
     std::locale::global(std::locale("C"));
+#ifndef __MINGW32__
     setenv("TZ", "UTC", 0); // set timezone as "UTC" in EE level
+#endif
 
     (void) pthread_key_create(&logical_executor_context_static_key, NULL);
     (void) pthread_key_create(&physical_topend_static_key, NULL);

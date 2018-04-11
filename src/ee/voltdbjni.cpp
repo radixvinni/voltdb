@@ -140,6 +140,7 @@ using namespace voltdb;
 static VoltDBEngine *currentEngine = NULL;
 static JavaVM *currentVM = NULL;
 
+#ifdef __linux__
 void signalHandler(int signum, siginfo_t *info, void *context) {
     if (currentVM == NULL || currentEngine == NULL)
         return;
@@ -158,6 +159,7 @@ void signalHandler(int signum, siginfo_t *info, void *context) {
     topend->crashVoltDB(SegvException(message.c_str(), context, __FILE__, __LINE__));
     currentVM->DetachCurrentThread();
 }
+#endif
 
 void setupSigHandler(void) {
 #ifdef __linux__
@@ -832,7 +834,7 @@ Java_org_voltdb_jni_ExecutionEngine_nativeGetStats(JNIEnv *env, jobject obj,
     int *locators = NULL;
     int numLocators = 0;
     if (locatorsArray != NULL) {
-        locators = env->GetIntArrayElements(locatorsArray, NULL);
+        locators = (int*)env->GetIntArrayElements(locatorsArray, NULL);
         if (locators == NULL) {
             env->ExceptionDescribe();
             return JNI_FALSE;
@@ -840,7 +842,7 @@ Java_org_voltdb_jni_ExecutionEngine_nativeGetStats(JNIEnv *env, jobject obj,
         numLocators = env->GetArrayLength(locatorsArray);
         if (env->ExceptionCheck()) {
             env->ExceptionDescribe();
-            env->ReleaseIntArrayElements(locatorsArray, locators, JNI_ABORT);
+            env->ReleaseIntArrayElements(locatorsArray, (jint*)locators, JNI_ABORT);
             return JNI_FALSE;
         }
     }
@@ -853,7 +855,7 @@ Java_org_voltdb_jni_ExecutionEngine_nativeGetStats(JNIEnv *env, jobject obj,
         topend->crashVoltDB(e);
     }
 
-    env->ReleaseIntArrayElements(locatorsArray, locators, JNI_ABORT);
+    env->ReleaseIntArrayElements(locatorsArray, (jint*)locators, JNI_ABORT);
 
     return static_cast<jint>(result);
 }
@@ -1353,7 +1355,7 @@ SHAREDLIB_JNIEXPORT jlong JNICALL Java_org_voltdb_utils_PosixAdvise_sync_1file_1
 #endif
     return syscall(__NR_sync_file_range, static_cast<int>(fd), static_cast<loff_t>(offset), static_cast<loff_t>(length),
                    static_cast<unsigned int>(advice));
-#elif MACOSX
+#elif MACOSX || defined(__MINGW32__)
     return -1;
 #else
     return fdatasync(static_cast<int>(fd));
@@ -1368,7 +1370,7 @@ SHAREDLIB_JNIEXPORT jlong JNICALL Java_org_voltdb_utils_PosixAdvise_sync_1file_1
  */
 SHAREDLIB_JNIEXPORT jlong JNICALL Java_org_voltdb_utils_PosixAdvise_fallocate
   (JNIEnv *, jclass, jlong fd, jlong offset, jlong length) {
-#ifdef MACOSX
+#if defined (MACOSX) || defined(__MINGW32__)
     return -1;
 #else
     return posix_fallocate(static_cast<int>(fd), static_cast<off_t>(offset), static_cast<off_t>(length));

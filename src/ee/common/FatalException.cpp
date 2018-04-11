@@ -17,8 +17,14 @@
 
 #include "common/FatalException.hpp"
 
+#ifndef __MINGW32__
+#include <execinfo.h>
+#else
+inline int backtrace (void **__array, int __size) {return 0;}
+inline char **backtrace_symbols (void *const *__array, int __size) {return 0;}
+#endif
+
 #include <cxxabi.h>   // for abi
-#include <execinfo.h> // for backtrace, backtrace_symbols
 
 #include <cstring> // for strn*
 #include <dlfcn.h>

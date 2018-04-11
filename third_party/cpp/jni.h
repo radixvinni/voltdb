@@ -36,6 +36,10 @@
 #include "jni/osx/jni_md.h"
 #endif // MACOSX
 
+#ifdef __MINGW32__
+#include <win32/jni_md.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

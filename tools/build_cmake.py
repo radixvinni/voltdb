@@ -251,7 +251,7 @@ def getNumberProcessors(config):
 ########################################################################
 def makeBuilderCall(config):
     np = getNumberProcessors(config)
-    if config.generator.endswith('Unix Makefiles'):
+    if config.generator.endswith('Makefiles'):
         return "make -j%d %s" % (
             np,
             "VERBOSE=1" if config.verbose_build == 'yes' else ''
@@ -289,7 +289,7 @@ def configureCommandString(config):
             '%s '                         # verbose
             '-DCMAKE_BUILD_TYPE=%s '      # cmakeBuildType
             '-DVOLTDB_BUILD_TYPE=%s '     # config.buildtype
-            '-G \'%s\' '                  # config.generator
+            '-G \"%s\" '                  # config.generator
             '-DVOLTDB_USE_COVERAGE=%s '   # coverage
             '-DVOLTDB_USE_PROFILING=%s '  # profile
             '-DVOLT_LOG_LEVEL=%s '        # config.log_level

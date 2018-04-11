@@ -18,13 +18,13 @@
 
 namespace google_base {
 DateLogger::DateLogger() {
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW64__)
   _tzset();
 #endif
 }
 
 char* const DateLogger::HumanDate() {
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW64__)
   _strtime_s(buffer_, sizeof(buffer_));
 #else
   time_t time_value = time(NULL);

@@ -303,6 +303,7 @@ SET (VOLTDB_IPC_SRC
   voltdbipc.cpp
 )
 
+
 #
 # These are sets of object files, something like static libraries.
 #
@@ -351,9 +352,19 @@ VOLTDB_ADD_LIBRARY(${VOLTDB_LIBNAME}
   )
 
 TARGET_LINK_LIBRARIES(${VOLTDB_LIBNAME}
+  -L/mingw/lib
   -L${VOLTDB_3PTY_INSTALL_PREFIX}/lib
-  -lpcre2-8 -ls2geo -lcrypto
+  -L/usr/local/lib
+  -L/C/Windows/system32 ws2_32.dll
+  -lpcre2-8 -ls2geo -lcrypto -lmman -lpsapi -lpcre2-posix
   ${VOLTDB_LINK_FLAGS})
+if (WIN32)
+ADD_DEFINITIONS(-fpermissive
+  -I${CMAKE_SOURCE_DIR}/3pty-obj/pcre2/obj/pcre2-10.10/src
+  -I"$ENV{JRE_HOME}/include/" -D__USE_MINGW_ANSI_STDIO=1 
+  -Wno-error=deprecated -Wno-error=array-bounds
+  -Wno-error=implicit-fallthrough)
+endif()
 
 ADD_DEPENDENCIES(${VOLTDB_LIBNAME} s2geo pcre2 crypto)
 ########################################################################
@@ -373,6 +384,7 @@ TARGET_LINK_LIBRARIES(${VOLTDB_IPCRUN_NAME}
   -L${VOLTDB_3PTY_INSTALL_PREFIX}/lib
   -lpcre2-8 -ls2geo -lcrypto
   -ldl)
+
 
 ########################################################################
 #

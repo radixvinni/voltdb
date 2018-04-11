@@ -32,10 +32,10 @@ public:
     const static int64_t TIMESTAMP_BITS = 40;
     const static int64_t COUNTER_BITS = 9;
     const static int64_t PARTITIONID_BITS = 14;
-    const static int64_t TIMESTAMP_MAX_VALUE = (1L << TIMESTAMP_BITS) - 1L;
-    const static int64_t COUNTER_MAX_VALUE = (1L << COUNTER_BITS) - 1L;
+    const static int64_t TIMESTAMP_MAX_VALUE = (1LL << TIMESTAMP_BITS) - 1LL;
+    const static int64_t COUNTER_MAX_VALUE = (1LL << COUNTER_BITS) - 1LL;
     const static int64_t TIMESTAMP_PLUS_COUNTER_MAX_VALUE = (1LL << (TIMESTAMP_BITS + COUNTER_BITS)) - 1LL;
-    const static int64_t PARTITIONID_MAX_VALUE = (1L << PARTITIONID_BITS) - 1L;
+    const static int64_t PARTITIONID_MAX_VALUE = (1LL << PARTITIONID_BITS) - 1LL;
     const static int64_t PARTITION_ID_MASK = PARTITIONID_MAX_VALUE;
     const static int64_t MP_INIT_PID = PARTITIONID_MAX_VALUE;
 

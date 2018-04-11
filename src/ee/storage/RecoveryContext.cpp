@@ -93,7 +93,7 @@ int64_t RecoveryContext::handleStreamMore(TupleOutputStreamProcessor &outputStre
                                           std::vector<int> &retPositions) {
     if (outputStreams.size() != 1) {
         throwFatalException("RecoveryContext::handleStreamMore: Expect 1 output stream "
-                            "for recovery, received %ld", outputStreams.size());
+                            "for recovery, received %zd", outputStreams.size());
     }
     /*
      * Table ids don't change during recovery because

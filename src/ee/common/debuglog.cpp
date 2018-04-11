@@ -16,7 +16,14 @@
  */
 #include "debuglog.h"
 #include "common/ThreadLocalPool.h"
+
+#ifndef __MINGW32__
 #include <execinfo.h>
+#else
+inline int backtrace (void **__array, int __size) {return 0;}
+inline char **backtrace_symbols (void *const *__array, int __size) {return 0;}
+#endif
+
 #include <cstring>
 #include <cxxabi.h>   // for abi
 #include <cstdlib> // for malloc/free

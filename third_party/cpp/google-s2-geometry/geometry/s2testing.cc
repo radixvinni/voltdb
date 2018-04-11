@@ -1,7 +1,12 @@
 /// Copyright 2005 Google Inc. All Rights Reserved.
 
 #include <stdlib.h>
+#ifndef __MINGW32__
 #include <sys/resource.h>   // for rusage, RUSAGE_SELF
+#else
+#define srandom srand
+#define random rand
+#endif
 #include <limits.h>
 
 #include <vector>
@@ -307,7 +312,9 @@ void S2Testing::CheckCovering(S2Region const& region,
 }
 
 double S2Testing::GetCpuTime() {
+#ifndef __MINGW32__
   struct rusage ru;
   CHECK_EQ(getrusage(RUSAGE_SELF, &ru), 0);
   return ru.ru_utime.tv_sec + ru.ru_utime.tv_usec / 1e6;
+#endif
 }
