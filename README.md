@@ -1,3 +1,36 @@
+VoltDB version for Winodws (MSYS2\Cygwin-x86_64)
+====================
+
+This fork aims to porting VoltDB Community edition to Windows newer then XP. I used MSYS2. It will mostly build on MinGW too, but it would need some port for posix sockets 
+support, [mman-win32](https://code.google.com/archive/p/mman-win32/) and [dlfcn-win32](https://github.com/dlfcn-win32/dlfcn-win32). All this included in msys2 runtime dll.
+
+Building VoltDB
+====================
+
+Setup (jdk 8 or 9)[http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html], (MSYS2)[http://www.msys2.org/], update and install build environment:
+
+	pacman -Syu
+	(restart MSYS2)
+	pacman -Syu
+	pacman -S msys2-devel git make nano python2 wget diffutils
+
+You can try to use ```mingw-w64-x86_64-cmake``` or ```cmake```, but i managed to build only with (Git for Windows)[https://git-scm.com/]:
+
+	export PATH=$PATH:/c/Program\ Files/CMake/bin:/c/Program\ Files/Java/jdk1.8.0_161/bin
+	
+Setup apache ant to $PATH:
+
+	wget http://apache-mirror.rbc.ru/pub/apache//ant/binaries/apache-ant-1.10.3-bin.tar.gz
+	bsdtar xzf apache-ant-1.10.3-bin.tar.gz
+	export PATH=$PATH:$(pwd)/apache-ant-1.10.3/bin
+	export JAVA_HOME="/C/Program Files/Java/jdk1.8.0_161"
+
+Clone and build:
+	
+	git clone https://github.com/radixvinni/voltdb.git
+	cd voltdb
+	ant
+
 What is VoltDB?
 ====================
 
@@ -23,22 +56,6 @@ The commercial editions add operational features to support industrial strength 
 For more information, please see our "Editions" page:
 
 https://www.voltdb.com/product/editions/
-
-VoltDB Branches and Tags
-====================
-
-The latest development branch is _master_. We develop features on branches and merge to _master_ when stable. While _master_ is usually stable, it should not be considered production-ready and may also have partially implemented features.
-
-Code that corresponds to released versions of VoltDB are tagged "voltdb-X.X" or "voltdb-X.X.X". To build corresponding OSS VoltDB versions, use these tags.
-
-
-Building VoltDB
-====================
-
-Information on building VoltDB from this source repository is maintained in a GitHub wiki page available here:
-
-https://github.com/VoltDB/voltdb/wiki/Building-VoltDB
-
 
 First Steps
 ====================
