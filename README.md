@@ -7,7 +7,7 @@ support, [mman-win32](https://code.google.com/archive/p/mman-win32/) and [dlfcn-
 Building VoltDB
 ====================
 
-Setup (jdk 8 or 9)[http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html], (MSYS2)[http://www.msys2.org/], update and install build environment:
+Setup [jdk 8 or 9](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html), [MSYS2](http://www.msys2.org/), update and install build environment:
 
 	pacman -Syu
 	(restart MSYS2)
