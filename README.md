@@ -14,7 +14,7 @@ Setup [jdk 8 or 9](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-
 	pacman -Syu
 	pacman -S msys2-devel git make nano python2 wget diffutils
 
-You can try to use ```mingw-w64-x86_64-cmake``` or ```cmake```, but i managed to build only with (Git for Windows)[https://git-scm.com/]:
+You can try to use ```mingw-w64-x86_64-cmake``` or ```cmake```, but i managed to build only with [Git for Windows](https://git-scm.com/):
 
 	export PATH=$PATH:/c/Program\ Files/CMake/bin:/c/Program\ Files/Java/jdk1.8.0_161/bin
 	
