@@ -18,7 +18,6 @@
 
 #ifndef _BYTESWAP_H
 #ifdef __MINGW64__
-#endif
 static __inline unsigned short
 __bswap_16 (unsigned short __x)
 {
@@ -36,6 +35,7 @@ __bswap_64 (unsigned long long __x)
 {
   return (((unsigned long long) __bswap_32 (__x & 0xffffffffull)) << 32) | (__bswap_32 (__x >> 32));
 }
+#endif
 
 #define _BYTESWAP_H 1
 

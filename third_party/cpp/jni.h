@@ -40,6 +40,12 @@
 #include <win32/jni_md.h>
 #endif
 
+#ifdef __CYGWIN__
+#include <stdint.h>
+typedef int64_t __int64;
+#include <win32/jni_md.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -17,7 +17,7 @@
 
 #include "common/FatalException.hpp"
 
-#ifndef __MINGW32__
+#if !defined(__MINGW32__) && !defined(__CYGWIN__)
 #include <execinfo.h>
 #else
 inline int backtrace (void **__array, int __size) {return 0;}

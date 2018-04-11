@@ -113,7 +113,7 @@
 <property name='deployment.parsergen.pkg'    value='org.voltdb.compiler.deploymentfile' />
 <property name='deployment.parsergen.xsd'    value='org/voltdb/compiler/DeploymentFileSchema.xsd' />
 <!-- Some definitions the EE build process needs. -->
-<property name='cmake.generator'             value='Unix Makefiles' />
+<property name='cmake.generator'             value='MSYS Makefiles' />
 <property name='cmake.build.obj'             value='${build.dir}' />
 <property name='cmake.build.tool'            value='${base.dir}/tools/build_cmake.py' />
 <property name='cmake.verbose.build'         value='no' />
@@ -551,7 +551,7 @@ PRIMARY ENTRY POINTS
 
 <target name="bindoc" depends="buildinfo"
         description="Generate README for certain bin programs.">
-    <exec executable="/bin/sh">
+    <exec executable="sh">
         <arg value="-c" />
         <arg value="${base.dir}/bin/voltadmin help &gt; ${base.dir}/README.voltadmin" />
     </exec>
@@ -671,25 +671,25 @@ DISTRIBUTION
 <target name="dist_internal" depends="dist_internal_core">
 
     <!-- build the jars for the clients -->
-    <exec dir='examples/adperformance' executable='/usr/bin/env'><arg line="bash run.sh jars"/></exec>
-    <exec dir='examples/bank-offers' executable='/usr/bin/env'><arg line="bash run.sh jars"/></exec>
-    <exec dir='examples/contentionmark' executable='/usr/bin/env'><arg line="bash run.sh jars"/></exec>
-    <exec dir='examples/callcenter' executable='/usr/bin/env'><arg line="bash run.sh jars"/></exec>
-    <exec dir='examples/geospatial' executable='/usr/bin/env'><arg line="bash run.sh jars"/></exec>
-    <exec dir='examples/json-sessions' executable='/usr/bin/env'><arg line="bash run.sh jars"/></exec>
-    <exec dir='examples/metrocard' executable='/usr/bin/env'><arg line="bash run.sh jars"/></exec>
-    <exec dir='examples/nbbo' executable='/usr/bin/env'><arg line="bash run.sh jars"/></exec>
-    <exec dir='examples/positionkeeper' executable='/usr/bin/env'><arg line="bash run.sh jars"/></exec>
-    <exec dir='examples/uniquedevices' executable='/usr/bin/env'><arg line="bash run.sh jars"/></exec>
-    <exec dir='examples/voter' executable='/usr/bin/env'><arg line="bash run.sh jars"/></exec>
-    <exec dir='examples/voltkv' executable='/usr/bin/env'><arg line="bash run.sh jars"/></exec>
-    <exec dir='examples/windowing' executable='/usr/bin/env'><arg line="bash run.sh jars"/></exec>
-    <exec dir='examples/windowing-with-ddl' executable='/usr/bin/env'><arg line="bash run.sh jars"/></exec>
-    <exec dir='examples/fraud-detection' executable='/usr/bin/env'><arg line="bash run.sh jars"/></exec>
+    <exec dir='examples/adperformance' executable='env'><arg line="bash run.sh jars"/></exec>
+    <exec dir='examples/bank-offers' executable='env'><arg line="bash run.sh jars"/></exec>
+    <exec dir='examples/contentionmark' executable='env'><arg line="bash run.sh jars"/></exec>
+    <exec dir='examples/callcenter' executable='env'><arg line="bash run.sh jars"/></exec>
+    <exec dir='examples/geospatial' executable='env'><arg line="bash run.sh jars"/></exec>
+    <exec dir='examples/json-sessions' executable='env'><arg line="bash run.sh jars"/></exec>
+    <exec dir='examples/metrocard' executable='env'><arg line="bash run.sh jars"/></exec>
+    <exec dir='examples/nbbo' executable='env'><arg line="bash run.sh jars"/></exec>
+    <exec dir='examples/positionkeeper' executable='env'><arg line="bash run.sh jars"/></exec>
+    <exec dir='examples/uniquedevices' executable='env'><arg line="bash run.sh jars"/></exec>
+    <exec dir='examples/voter' executable='env'><arg line="bash run.sh jars"/></exec>
+    <exec dir='examples/voltkv' executable='env'><arg line="bash run.sh jars"/></exec>
+    <exec dir='examples/windowing' executable='env'><arg line="bash run.sh jars"/></exec>
+    <exec dir='examples/windowing-with-ddl' executable='env'><arg line="bash run.sh jars"/></exec>
+    <exec dir='examples/fraud-detection' executable='env'><arg line="bash run.sh jars"/></exec>
 
     <!-- build the jars for the tutorials -->
-    <exec dir='doc/tutorials/helloworld' executable='/usr/bin/env'><arg line="bash run.sh jars"/></exec>
-    <exec dir='doc/tutorials/helloworldrevisited' executable='/usr/bin/env'><arg line="bash run.sh jars"/></exec>
+    <exec dir='doc/tutorials/helloworld' executable='env'><arg line="bash run.sh jars"/></exec>
+    <exec dir='doc/tutorials/helloworldrevisited' executable='env'><arg line="bash run.sh jars"/></exec>
 
     <!-- populate the stuff not handled by dist_internal_core -->
     <copy todir="${dist.dir}/">
@@ -829,7 +829,7 @@ DISTRIBUTION
     </copy>
 
     <!-- Call shell script that handles copying native libs so they can be packaged together -->
-    <exec dir='.' executable="/usr/bin/env" failonerror='true'>
+    <exec dir='.' executable="env" failonerror='true'>
         <arg value='bash' />
         <arg value='tools/copy-lib.sh'/>
         <arg value='${build.prod.dir}/org/voltdb/native/Mac/x86_64' />
@@ -849,17 +849,17 @@ DISTRIBUTION
 <target name="strip_libvoltdb_linux" unless="os.mac">
 
     <!-- save the symbols from the shared library -->
-    <exec dir='${base.dir}/voltdb' executable='/bin/sh'>
+    <exec dir='${base.dir}/voltdb' executable='sh'>
         <arg line="-c '/usr/bin/objcopy --only-keep-debug libvoltdb-${dist.version}.so ${build.dir}/voltdb-${dist.version}.sym'" />
     </exec>
 
     <!-- strip the voltbin shared library (~40x size reduction) -->
-    <exec dir='${base.dir}/voltdb' executable='/bin/sh'>
+    <exec dir='${base.dir}/voltdb' executable='sh'>
         <arg line="-c '/usr/bin/strip --strip-debug --strip-unneeded libvoltdb*'"/>
     </exec>
 
     <!-- embed the path to the symbol file into the ELF binary -->
-    <exec dir='${base.dir}/voltdb' executable='/bin/sh'>
+    <exec dir='${base.dir}/voltdb' executable='sh'>
         <arg line="-c '/usr/bin/objcopy --add-gnu-debuglink=voltdb-${dist.version}.sym libvoltdb-${dist.version}.so'" />
     </exec>
 
@@ -870,7 +870,7 @@ DISTRIBUTION
     <!-- objcopy is unavailable by default on Mac -->
 
     <!-- Just use strip -S since strip-unneeded option is unavailable. -->
-    <exec dir='${base.dir}/voltdb' executable='/bin/sh'>
+    <exec dir='${base.dir}/voltdb' executable='sh'>
         <arg line="-c '/usr/bin/strip -S libvoltdb*'"/>
     </exec>
 </target>
@@ -922,56 +922,56 @@ CLEANING
     description="Remove all compiled and generated files."
     depends="cleantmp, clean_client, clean_deployment_gen,
              clean_bindoc, clean_other_gen, clean_kafkaloader">
-  <exec dir='examples/adperformance' executable='/usr/bin/env'><arg line="bash run.sh cleanall"/></exec>
-  <exec dir='examples/bank-offers' executable='/usr/bin/env'><arg line="bash run.sh cleanall"/></exec>
-  <exec dir='examples/callcenter' executable='/usr/bin/env'><arg line="bash run.sh cleanall"/></exec>
-  <exec dir='examples/contentionmark' executable='/usr/bin/env'><arg line="bash run.sh cleanall"/></exec>
-  <exec dir='examples/geospatial' executable='/usr/bin/env'><arg line="bash run.sh cleanall"/></exec>
-  <exec dir='examples/json-sessions' executable='/usr/bin/env'><arg line="bash run.sh cleanall"/></exec>
-  <exec dir='examples/metrocard' executable='/usr/bin/env'><arg line="bash run.sh cleanall"/></exec>
-  <exec dir='examples/nbbo' executable='/usr/bin/env'><arg line="bash run.sh cleanall"/></exec>
-  <exec dir='examples/positionkeeper' executable='/usr/bin/env'><arg line="bash run.sh cleanall"/></exec>
-  <exec dir='examples/uniquedevices' executable='/usr/bin/env'><arg line="bash run.sh cleanall"/></exec>
-  <exec dir='examples/voltkv' executable='/usr/bin/env'><arg line="bash run.sh cleanall"/></exec>
-  <exec dir='examples/voter' executable='/usr/bin/env'><arg line="bash run.sh cleanall"/></exec>
-  <exec dir='examples/windowing' executable='/usr/bin/env'><arg line="bash run.sh cleanall"/></exec>
-  <exec dir='examples/windowing-with-ddl' executable='/usr/bin/env'><arg line="bash run.sh cleanall"/></exec>
-  <exec dir='examples/fraud-detection' executable='/usr/bin/env'><arg line="bash run.sh cleanall"/></exec>
+  <exec dir='examples/adperformance' executable='env'><arg line="bash run.sh cleanall"/></exec>
+  <exec dir='examples/bank-offers' executable='env'><arg line="bash run.sh cleanall"/></exec>
+  <exec dir='examples/callcenter' executable='env'><arg line="bash run.sh cleanall"/></exec>
+  <exec dir='examples/contentionmark' executable='env'><arg line="bash run.sh cleanall"/></exec>
+  <exec dir='examples/geospatial' executable='env'><arg line="bash run.sh cleanall"/></exec>
+  <exec dir='examples/json-sessions' executable='env'><arg line="bash run.sh cleanall"/></exec>
+  <exec dir='examples/metrocard' executable='env'><arg line="bash run.sh cleanall"/></exec>
+  <exec dir='examples/nbbo' executable='env'><arg line="bash run.sh cleanall"/></exec>
+  <exec dir='examples/positionkeeper' executable='env'><arg line="bash run.sh cleanall"/></exec>
+  <exec dir='examples/uniquedevices' executable='env'><arg line="bash run.sh cleanall"/></exec>
+  <exec dir='examples/voltkv' executable='env'><arg line="bash run.sh cleanall"/></exec>
+  <exec dir='examples/voter' executable='env'><arg line="bash run.sh cleanall"/></exec>
+  <exec dir='examples/windowing' executable='env'><arg line="bash run.sh cleanall"/></exec>
+  <exec dir='examples/windowing-with-ddl' executable='env'><arg line="bash run.sh cleanall"/></exec>
+  <exec dir='examples/fraud-detection' executable='env'><arg line="bash run.sh cleanall"/></exec>
 
-  <exec dir='doc/tutorials/helloworld' executable='/usr/bin/env'><arg line="bash run.sh clean"/></exec>
-  <exec dir='doc/tutorials/helloworldrevisited' executable='/usr/bin/env'><arg line="bash run.sh clean"/></exec>
+  <exec dir='doc/tutorials/helloworld' executable='env'><arg line="bash run.sh clean"/></exec>
+  <exec dir='doc/tutorials/helloworldrevisited' executable='env'><arg line="bash run.sh clean"/></exec>
 
-  <exec dir='.' executable='/bin/sh'>
+  <exec dir='.' executable='sh'>
     <arg line="-c 'rm -rf obj/*'"/>
   </exec>
-  <exec dir='.' executable='/bin/sh'>
+  <exec dir='.' executable='sh'>
     <arg line="-c 'rm -rf third_party/cpp/pcre2*'"/>
   </exec>
-  <exec dir='.' executable='/bin/sh'>
+  <exec dir='.' executable='sh'>
     <arg line="-c 'rm -rf bundles/*.jar'"/>
   </exec>
-  <exec dir='.' executable='/bin/sh'>
+  <exec dir='.' executable='sh'>
     <arg line="-c 'rm -rf voltdb/*.jar'"/>
   </exec>
-  <exec dir='.' executable='/bin/sh'>
+  <exec dir='.' executable='sh'>
     <arg line="-c 'rm -rf voltdb/*.so voltdb/*.jnilib'"/>
   </exec>
-  <exec dir='.' executable='/bin/sh'>
+  <exec dir='.' executable='sh'>
     <arg line="-c 'rm -rf src/ee/catalog/*'"/>
   </exec>
-  <exec dir='.' executable='/bin/sh'>
+  <exec dir='.' executable='sh'>
     <arg line="-c 'rm -rf src/catgen/out/*'"/>
   </exec>
-  <exec dir='.' executable='/bin/sh'>
+  <exec dir='.' executable='sh'>
     <arg line="-c 'rm -rf src/frontend/org/voltdb/catalog/*.java'"/>
   </exec>
-  <exec dir='.' executable='/bin/sh'>
+  <exec dir='.' executable='sh'>
     <arg line="-c 'rm -rf src/frontend/org/voltcore/utils/DBBPool.java'"/>
   </exec>
-  <exec dir='.' executable='/bin/sh'>
+  <exec dir='.' executable='sh'>
     <arg line="-c 'rm -rf *.jar'"/>
   </exec>
-  <exec dir='.' executable='/bin/sh'>
+  <exec dir='.' executable='sh'>
     <arg line="-c 'rm -rf doc/javadoc/procedure-api/* doc/javadoc/java-client-api/*'"/>
   </exec>
 </target>
@@ -989,16 +989,16 @@ CLEANING
 </target>
 
 <target name='cleanugh' description="Remove stack traces and crash dumps dropped by tests">
-    <exec dir='.' executable='/bin/sh'>
+    <exec dir='.' executable='sh'>
         <arg line="-c 'rm -f voltdb_crash*.txt'"/>
     </exec>
-    <exec dir='.' executable='/bin/sh'>
+    <exec dir='.' executable='sh'>
         <arg line="-c 'rm -f host*-*-*.txt'"/>
     </exec>
 </target>
 
 <target name='cleantmp' description="Remove all data files Volt generated in /tmp.">
-  <exec dir='.' executable='/bin/sh' failonerror='false'>
+  <exec dir='.' executable='sh' failonerror='false'>
     <arg line="-c 'rm -rf /tmp/myApp*.tmp *.vpt *.digest'"/>
   </exec>
 </target>
@@ -1704,7 +1704,7 @@ failonerror='true'>
         <!-- per-test post processing script
              1. ensure a result xml file got written
              2. ensure no whacky processes were stranded -->
-        <exec executable="/usr/bin/env">
+        <exec executable="env">
             <arg value="python2" />
             <arg value="${base.dir}/tools/junit-post-process.py" />
             <arg value="--testname=${testname}" />
@@ -1871,7 +1871,7 @@ failonerror='true'>
     <sequential>
         <mkdir dir='${build.testoutput.dir}' />
         <mkdir dir='${build.dir}/testoutput-archive/' />
-        <exec executable="/usr/bin/env" failonerror='true'>
+        <exec executable="env" failonerror='true'>
             <arg value="python2" />
             <arg value="${base.dir}/tools/junit-pre-process.py" />
             <arg value="--archivepath=${build.dir}/testoutput-archive/" />
@@ -2074,7 +2074,7 @@ failonerror='true'>
     <attribute name="app"/>
     <!-- make sure example application compiles -->
     <sequential>
-        <exec dir="${dist.examples.dir}/@{app}" executable="/usr/bin/env" failonerror='true'>
+        <exec dir="${dist.examples.dir}/@{app}" executable="env" failonerror='true'>
             <arg value="bash" />
             <arg value="run.sh" />
             <arg value="jars" />
@@ -2125,7 +2125,7 @@ failonerror='true'>
     <property name="default_config"      location="${test.config.dir}/config.py" />
     <property name="regression_config"   location="${test.config.dir}/regression-config.py" />
     <property name="sqlcov.dir"          location="${build.dir}/sqlcoverage" />
-    <exec dir='.' executable='/bin/sh'>
+    <exec dir='.' executable='sh'>
         <arg line="-c 'rm -rf ${sqlcov.dir}'"/>
     </exec>
     <mkdir dir="${sqlcov.dir}" />
@@ -2327,7 +2327,7 @@ failonerror='true'>
     <echo message="Running from ${sqlcmdtest.dir}"/>
 
     <!-- build the jar file used to test the load and remove commands -->
-    <exec dir='${sqlcmdtest.dir}' executable='/usr/bin/env'><arg line="bash build_jar.sh"/></exec>
+    <exec dir='${sqlcmdtest.dir}' executable='env'><arg line="bash build_jar.sh"/></exec>
 
     <condition property="user" value="${env.USER}" else="anonymous">
         <isset property="env.USER"/>
@@ -2349,7 +2349,7 @@ failonerror='true'>
     <echo message="Running from ${sqlcmdtest.dir}"/>
 
     <!-- build the jar file used to test the load and remove commands -->
-    <exec dir='${sqlcmdtest.dir}' executable='/usr/bin/env'><arg line="bash build_jar.sh"/></exec>
+    <exec dir='${sqlcmdtest.dir}' executable='env'><arg line="bash build_jar.sh"/></exec>
 
     <condition property="user" value="${env.USER}" else="anonymous">
         <isset property="env.USER"/>
@@ -2466,7 +2466,7 @@ UTILITIES
 <target name='setversion'
         description="Set the version string">
     <fail unless="newversion" message="ERROR: -Dnewversion=n.m must be set"/>
-    <exec dir='.' executable='/usr/bin/env'>
+    <exec dir='.' executable='env'>
       <arg value="bash" />
       <arg value="tools/change-version.sh"/>
       <arg value='${newversion}' />
@@ -2506,7 +2506,7 @@ DEPLOYMENT FILE SCHEMA CODE GENERATION
 
 <target name="clean_deployment_gen"
         description="Remove all source files generated by JAXB for deployment file schema.">
-    <exec dir='.' executable='/bin/sh' failonerror='false'>
+    <exec dir='.' executable='sh' failonerror='false'>
         <arg line="-c 'rm -rfv ${deployment.parsergen.dir}'" />
     </exec>
 </target>

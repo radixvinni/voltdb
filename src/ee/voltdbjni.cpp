@@ -1370,7 +1370,7 @@ SHAREDLIB_JNIEXPORT jlong JNICALL Java_org_voltdb_utils_PosixAdvise_sync_1file_1
  */
 SHAREDLIB_JNIEXPORT jlong JNICALL Java_org_voltdb_utils_PosixAdvise_fallocate
   (JNIEnv *, jclass, jlong fd, jlong offset, jlong length) {
-#if defined (MACOSX) || defined(__MINGW32__)
+#if defined (MACOSX) || defined(__MINGW32__) || defined(__CYGWIN__)
     return -1;
 #else
     return posix_fallocate(static_cast<int>(fd), static_cast<off_t>(offset), static_cast<off_t>(length));
