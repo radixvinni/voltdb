@@ -25,14 +25,7 @@ import java.util.List;
 
 public class CLibrary {
     private static final VoltLogger hostLog = new VoltLogger("HOST");
-    static {
-        try {
-            Native.register(Platform.isWindows() ? "msys-2.0" : "c");
-        } catch (Exception e) {
-            hostLog.warn("Failed to load libc via JNA", e);
-        }
-    }
-
+    
     public static final class Rlimit extends  com.sun.jna.Structure {
         public long rlim_cur = 0;
         public long rlim_max = 0;
@@ -43,20 +36,43 @@ public class CLibrary {
         }
     }
 
+    private static class PosixLib {
+        static { if (!Platform.isWindows()) Native.register("c"); }
+        public static native final int getrlimit(int resource, Rlimit rlimit);
+        public static native final int getpid();
+    }
+    private static class MsysLib {
+        static { if (Platform.isWindows()) Native.register("msys-2.0"); }
+        public static native final int getpid();
+    }
+    
     public static final int RLIMIT_NOFILE_LINUX = 7;
     public static final int RLIMIT_NOFILE_MAC_OS_X = 8;
 
-    public static native final int getrlimit(int resource, Rlimit rlimit);
-
+    public static final int getrlimit(int resource, Rlimit rlimit) {
+        if (!Platform.isWindows())
+            return PosixLib.getrlimit(resource, rlimit);
+        else 
+            return 0;
+    }
+    
+    public static final int getpid() {
+        if (!Platform.isWindows())
+            return PosixLib.getpid();
+        else 
+            return MsysLib.getpid();
+    }
+    
     /*
      * Returns the limit on the number of open files or null
      * on failure
      */
     public static Integer getOpenFileLimit() {
+        if (Platform.isWindows()) return null;
         try {
             Rlimit rlimit = new Rlimit();
             int retval =
-                getrlimit(
+                PosixLib.getrlimit(
                     System.getProperty("os.name").equals("Linux") ? RLIMIT_NOFILE_LINUX : RLIMIT_NOFILE_MAC_OS_X,
                             rlimit);
             if (retval != 0) {
@@ -72,7 +88,5 @@ public class CLibrary {
         }
         return null;
     }
-
-    public static native final int getpid();
 
 }

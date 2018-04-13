@@ -80,7 +80,7 @@ def _check_segmentation_offload():
 
 def test_os_release(output):
     supported = False
-    distInfo = ""
+    distInfo = platform.dist()
     formatString = "{0} release {1} {2}"
     if platform.system() == "Linux":
         output['OS'] = ["PASS", "Linux"]
@@ -99,6 +99,8 @@ def test_os_release(output):
         distInfo = ("MacOS X", version, "") # on Mac, platform.dist() is empty
         if version >= "10.8.0":
             supported = True
+    elif platform.system() == "MINGW64_NT-6.1":
+        distInfo = ("Windows", "7", "MINGW64")
     else:
         output['OS'] = ["WARN", "Only supports Linux based platforms"]
         output['OS release'] = ["WARN", "Supported distributions are Ubuntu 12.04/14.04 and RedHat/CentOS 6.6 or later"]
