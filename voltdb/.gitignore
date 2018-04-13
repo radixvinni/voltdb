@@ -1,3 +1,5 @@
 /*.jar
 /*.jnilib
 /*.so
+/*.dll
+/*.dll.a

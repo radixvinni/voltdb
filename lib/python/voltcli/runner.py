@@ -90,20 +90,21 @@ class JavaRunner(object):
         self.config    = config
         self.kwargs    = kwargs
         self.classpath = None
+        self.JAVA_SEP  = ':'
 
     def initialize(self):
         if self.classpath is None:
             # Build the Java classpath using environment variable, config file,
             # verb attribute, and kwargs.
-            self.classpath = ':'.join(environment.classpath)
+            self.classpath = self.JAVA_SEP.join(environment.classpath)
             classpath_ext = self.config.get('volt.classpath')
             if classpath_ext:
-                self.classpath = ':'.join((self.classpath, classpath_ext))
+                self.classpath = self.JAVA_SEP.join((self.classpath, classpath_ext))
             verb_classpath = getattr(self.verb, 'classpath', None)
             if verb_classpath:
-                self.classpath = ':'.join((verb_classpath, self.classpath))
+                self.classpath = self.JAVA_SEP.join((verb_classpath, self.classpath))
             if 'classpath' in self.kwargs:
-                self.classpath = ':'.join((self.kwargs['classpath'], self.classpath))
+                self.classpath = self.JAVA_SEP.join((self.kwargs['classpath'], self.classpath))
 
     def execute(self, java_class, java_opts_override, *args, **kwargs):
         """
@@ -119,11 +120,11 @@ class JavaRunner(object):
         classpath = self.classpath
         kwargs_classpath = kwargs.get('classpath', None)
         if kwargs_classpath:
-            classpath = ':'.join((kwargs_classpath, classpath))
+            classpath = self.JAVA_SEP.join((kwargs_classpath, classpath))
         java_args = [environment.java]
         java_opts = utility.merge_java_options(environment.java_opts, java_opts_override)
         java_args.extend(java_opts)
-        java_args.append('-Dlog4j.configuration=file://%s' % os.environ['LOG4J_CONFIG_PATH'])
+        java_args.append('-Dlog4j.configuration=%s' % os.environ['LOG4J_CONFIG_PATH'])
         java_args.append('-Djava.library.path=default')
         java_args.extend(('-classpath', classpath))
         java_args.append(java_class)

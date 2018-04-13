@@ -18,6 +18,7 @@ package org.voltdb.utils;
 
 import org.voltcore.logging.VoltLogger;
 import com.sun.jna.Native;
+import com.sun.jna.Platform;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,7 +27,7 @@ public class CLibrary {
     private static final VoltLogger hostLog = new VoltLogger("HOST");
     static {
         try {
-            Native.register("c");
+            Native.register(Platform.isWindows() ? "msys-2.0" : "c");
         } catch (Exception e) {
             hostLog.warn("Failed to load libc via JNA", e);
         }
