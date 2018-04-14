@@ -124,6 +124,7 @@ class JavaRunner(object):
         java_args = [environment.java]
         java_opts = utility.merge_java_options(environment.java_opts, java_opts_override)
         java_args.extend(java_opts)
+        if sys.platform not in ['linux2','darwin']: os.environ['LOG4J_CONFIG_PATH'] = os.environ['LOG4J_CONFIG_PATH'][:2]+':'+os.environ['LOG4J_CONFIG_PATH'][2:]
         java_args.append('-Dlog4j.configuration=%s' % os.environ['LOG4J_CONFIG_PATH'])
         java_args.append('-Djava.library.path=default')
         java_args.extend(('-classpath', classpath))
