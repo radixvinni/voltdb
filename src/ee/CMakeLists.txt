@@ -309,12 +309,10 @@ SET (VOLTDB_IPC_SRC
 #
 VOLTDB_ADD_LIBRARY(voltdbobjs OBJECT ${VOLTDB_SRC})
 VOLTDB_ADD_LIBRARY(voltdbjniobjs OBJECT ${VOLTDB_JNI_SRC})
-VOLTDB_ADD_LIBRARY(voltdbipcobjs OBJECT ${VOLTDB_IPC_SRC})
 VOLTDB_ADD_LIBRARY(third_party_objs OBJECT ${VOLTDB_THIRD_PARTY_SRC})
 
 ADD_DEPENDENCIES(voltdbobjs s2geo crypto pcre2)
 ADD_DEPENDENCIES(voltdbjniobjs s2geo crypto pcre2)
-ADD_DEPENDENCIES(voltdbipcobjs s2geo crypto pcre2)
 
 TARGET_INCLUDE_DIRECTORIES(voltdbobjs
   PUBLIC
@@ -322,11 +320,6 @@ TARGET_INCLUDE_DIRECTORIES(voltdbobjs
   ${${PROJECT_NAME}_SOURCE_DIR}
   ${VOLTDB_3PTY_INSTALL_PREFIX}/include)
 TARGET_INCLUDE_DIRECTORIES(voltdbjniobjs
-  PUBLIC
-  ${CMAKE_SOURCE_DIR}/third_party/cpp
-  ${${PROJECT_NAME}_SOURCE_DIR}
-  ${VOLTDB_3PTY_INSTALL_PREFIX}/include)
-TARGET_INCLUDE_DIRECTORIES(voltdbipcobjs
   PUBLIC
   ${CMAKE_SOURCE_DIR}/third_party/cpp
   ${${PROJECT_NAME}_SOURCE_DIR}
@@ -353,6 +346,7 @@ VOLTDB_ADD_LIBRARY(${VOLTDB_LIBNAME}
 
 TARGET_LINK_LIBRARIES(${VOLTDB_LIBNAME}
   -L${VOLTDB_3PTY_INSTALL_PREFIX}/lib
+  -L/usr/local/lib
   -L/mingw/lib
   -L/C/Windows/system32 ws2_32.dll
   -lpcre2-8 -ls2geo -lcrypto -lpsapi -lmman -lucontext
@@ -362,13 +356,20 @@ ADD_DEPENDENCIES(${VOLTDB_LIBNAME} s2geo pcre2 crypto)
 
 if (WIN32)
 ADD_DEFINITIONS(-fpermissive
-  -I${CMAKE_SOURCE_DIR}/3pty-obj/pcre2/obj/pcre2-10.10/src
+  -I$/usr/local/include
   -I/mingw/include
   -I"$ENV{JAVA_HOME}/include/" -D__USE_MINGW_ANSI_STDIO=1 
   -Wno-error=deprecated -Wno-error=array-bounds
   -Wno-error=implicit-fallthrough
 )
 else()
+VOLTDB_ADD_LIBRARY(voltdbipcobjs OBJECT ${VOLTDB_IPC_SRC})
+ADD_DEPENDENCIES(voltdbipcobjs s2geo crypto pcre2)
+TARGET_INCLUDE_DIRECTORIES(voltdbipcobjs
+  PUBLIC
+  ${CMAKE_SOURCE_DIR}/third_party/cpp
+  ${${PROJECT_NAME}_SOURCE_DIR}
+  ${VOLTDB_3PTY_INSTALL_PREFIX}/include)
 ########################################################################
 #
 # Adding the voltdbipc executable target.
