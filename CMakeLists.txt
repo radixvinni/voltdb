@@ -314,7 +314,7 @@ ExternalProject_Add(crypto
   INSTALL_DIR ${VOLTDB_3PTY_INSTALL_PREFIX}
   DOWNLOAD_DIR ${VOLTDB_OPENSSL_BUILD_PREFIX}/src
   URL ${VOLTDB_OPENSSL_TARBALL}
-  CONFIGURE_COMMAND ${VOLTDB_OPENSSL_SRC}/Configure Cygwin-x86_64 
+  CONFIGURE_COMMAND ${VOLTDB_OPENSSL_SRC}/Configure mingw64 
 --prefix=${VOLTDB_3PTY_INSTALL_PREFIX} ${VOLTDB_OPENSSL_TOKEN}
   BUILD_COMMAND $(MAKE)
   BUILD_IN_SOURCE 1
@@ -427,4 +427,7 @@ ADD_SUBDIRECTORY(src/ee ee)
 #
 ########################################################################
 ENABLE_TESTING()
+if (WIN32)
+else()
 ADD_SUBDIRECTORY(tests/ee tests)
+endif()

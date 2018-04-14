@@ -353,17 +353,22 @@ VOLTDB_ADD_LIBRARY(${VOLTDB_LIBNAME}
 
 TARGET_LINK_LIBRARIES(${VOLTDB_LIBNAME}
   -L${VOLTDB_3PTY_INSTALL_PREFIX}/lib
-  -lpcre2-8 -ls2geo -lcrypto
+  -L/mingw/lib
+  -L/C/Windows/system32 ws2_32.dll
+  -lpcre2-8 -ls2geo -lcrypto -lpsapi -lmman -lucontext
   ${VOLTDB_LINK_FLAGS})
+
+ADD_DEPENDENCIES(${VOLTDB_LIBNAME} s2geo pcre2 crypto)
+
 if (WIN32)
 ADD_DEFINITIONS(-fpermissive
   -I${CMAKE_SOURCE_DIR}/3pty-obj/pcre2/obj/pcre2-10.10/src
+  -I/mingw/include
   -I"$ENV{JAVA_HOME}/include/" -D__USE_MINGW_ANSI_STDIO=1 
   -Wno-error=deprecated -Wno-error=array-bounds
+  -Wno-error=implicit-fallthrough
 )
-endif()
-
-ADD_DEPENDENCIES(${VOLTDB_LIBNAME} s2geo pcre2 crypto)
+else()
 ########################################################################
 #
 # Adding the voltdbipc executable target.
@@ -382,6 +387,10 @@ TARGET_LINK_LIBRARIES(${VOLTDB_IPCRUN_NAME}
   -lpcre2-8 -ls2geo -lcrypto
   -ldl)
 
+INSTALL(TARGETS ${VOLTDB_IPCRUN_NAME}
+  DESTINATION ${CMAKE_BINARY_DIR}/prod)
+
+endif()
 
 ########################################################################
 #
@@ -390,9 +399,6 @@ TARGET_LINK_LIBRARIES(${VOLTDB_IPCRUN_NAME}
 ########################################################################
 INSTALL(TARGETS ${VOLTDB_LIBNAME}
   DESTINATION ${CMAKE_BINARY_DIR}/nativelibs)
-
-INSTALL(TARGETS ${VOLTDB_IPCRUN_NAME}
-  DESTINATION ${CMAKE_BINARY_DIR}/prod)
 
 ########################################################################
 #
@@ -404,5 +410,5 @@ INSTALL(TARGETS ${VOLTDB_IPCRUN_NAME}
 #
 ########################################################################
 ADD_CUSTOM_TARGET(build
-  DEPENDS ${VOLTDB_LIBNAME} ${VOLTDB_IPCRUN_NAME}
+  DEPENDS ${VOLTDB_LIBNAME}
   )

@@ -41,10 +41,10 @@ public class CLibrary {
         public static native final int getrlimit(int resource, Rlimit rlimit);
         public static native final int getpid();
     }
-    private static class MsysLib {
+    /*private static class MsysLib {
         static { if (Platform.isWindows()) Native.register("msys-2.0"); }
         public static native final int getpid();
-    }
+    }*/
     
     public static final int RLIMIT_NOFILE_LINUX = 7;
     public static final int RLIMIT_NOFILE_MAC_OS_X = 8;
@@ -60,7 +60,7 @@ public class CLibrary {
         if (!Platform.isWindows())
             return PosixLib.getpid();
         else 
-            return MsysLib.getpid();
+            return 0;
     }
     
     /*
