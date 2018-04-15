@@ -99,8 +99,10 @@ def test_os_release(output):
         distInfo = ("MacOS X", version, "") # on Mac, platform.dist() is empty
         if version >= "10.8.0":
             supported = True
+    elif platform.system() == "Windows":
+        distInfo = ("Windows", platform.release(), platform.version())
     elif platform.system() == "MINGW64_NT-6.1":
-        distInfo = ("Windows", "7", "MINGW64")
+        distInfo = ("Windows", "7", "MSYS\MINGW64\CYGWIN")
     else:
         output['OS'] = ["WARN", "Only supports Linux based platforms"]
         output['OS release'] = ["WARN", "Supported distributions are Ubuntu 12.04/14.04 and RedHat/CentOS 6.6 or later"]

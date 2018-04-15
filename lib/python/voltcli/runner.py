@@ -90,7 +90,7 @@ class JavaRunner(object):
         self.config    = config
         self.kwargs    = kwargs
         self.classpath = None
-        self.JAVA_SEP  = ':'
+        self.JAVA_SEP  = ';' if sys.platform=='win32' else ':'
 
     def initialize(self):
         if self.classpath is None:
@@ -124,7 +124,8 @@ class JavaRunner(object):
         java_args = [environment.java]
         java_opts = utility.merge_java_options(environment.java_opts, java_opts_override)
         java_args.extend(java_opts)
-        if sys.platform not in ['linux2','darwin']: os.environ['LOG4J_CONFIG_PATH'] = os.environ['LOG4J_CONFIG_PATH'][:2]+':'+os.environ['LOG4J_CONFIG_PATH'][2:]
+        if sys.platform == 'msys': os.environ['LOG4J_CONFIG_PATH'] = os.environ['LOG4J_CONFIG_PATH'][:2]+':'+os.environ['LOG4J_CONFIG_PATH'][2:]
+        if sys.platform == 'win32': os.environ['LOG4J_CONFIG_PATH'] = '/'+os.environ['LOG4J_CONFIG_PATH'];
         java_args.append('-Dlog4j.configuration=file://%s' % os.environ['LOG4J_CONFIG_PATH'])
         java_args.append('-Djava.library.path=default')
         java_args.extend(('-classpath', classpath))
