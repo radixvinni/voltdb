@@ -121,7 +121,7 @@ class JavaRunner(object):
         kwargs_classpath = kwargs.get('classpath', None)
         if kwargs_classpath:
             classpath = self.JAVA_SEP.join((kwargs_classpath, classpath))
-        java_args = [environment.java]
+        java_args = ["java" if sys.platform=='win32' else environment.java]
         java_opts = utility.merge_java_options(environment.java_opts, java_opts_override)
         java_args.extend(java_opts)
         if sys.platform == 'msys': os.environ['LOG4J_CONFIG_PATH'] = os.environ['LOG4J_CONFIG_PATH'][:2]+':'+os.environ['LOG4J_CONFIG_PATH'][2:]
