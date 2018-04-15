@@ -44,9 +44,10 @@
         <level value="INFO"/>
     </logger -->
 
-    <!-- logger name="HOST">
-        <level value="INFO"/>
-    </logger -->
+    <logger name="HOST">
+        <level value="DEBUG"/>
+        <appender-ref ref="console"/>
+    </logger>
 
     <!-- logger name="NETWORK">
         <level value="INFO"/>

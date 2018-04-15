@@ -536,8 +536,11 @@ class NValue {
             char nextPotentialCodePoint[] = { 0, 0, 0, 0, 0, 0 };
             char *nextPotentialCodePointIter = nextPotentialCodePoint;
             //Copy 6 bytes or until the end
-            ::memcpy( nextPotentialCodePoint, m_cursor, std::min( 6LL, 
-m_end - m_cursor));
+#ifdef __MINGW64__
+            ::memcpy( nextPotentialCodePoint, m_cursor, std::min( 6LL, m_end - m_cursor));
+#else
+            ::memcpy( nextPotentialCodePoint, m_cursor, std::min( 6L, m_end - m_cursor));
+#endif
 
             /*
              * Extract the code point, find out how many bytes it was

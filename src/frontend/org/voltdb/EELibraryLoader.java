@@ -18,6 +18,7 @@
 package org.voltdb;
 
 import static org.voltcore.common.Constants.VOLT_TMP_DIR;
+import com.sun.jna.Platform;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -62,7 +63,8 @@ public class EELibraryLoader {
                         versionString = VoltDB.instance().getVersionString();
                     }
                     assert(versionString != null);
-                    final String libname = "voltdb-" + versionString;
+                    String libname = "voltdb-" + versionString;
+                    if (Platform.isWindows()) libname = "lib"+libname;
                     hostLog.info("Loading native VoltDB code ("+libname+"). A confirmation message will follow if the loading is successful.");
                     if (Boolean.getBoolean(USE_JAVA_LIBRARY_PATH)) {
                         System.loadLibrary(libname);

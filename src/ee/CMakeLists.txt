@@ -344,23 +344,24 @@ VOLTDB_ADD_LIBRARY(${VOLTDB_LIBNAME}
   $<TARGET_OBJECTS:third_party_objs>
   )
 
-TARGET_LINK_LIBRARIES(${VOLTDB_LIBNAME}
-  -L${VOLTDB_3PTY_INSTALL_PREFIX}/lib
-  -L/usr/local/lib
-  -L/mingw/lib
-  -L/C/Windows/system32 ws2_32.dll
-  -lpcre2-8 -ls2geo -lcrypto -lpsapi -lmman -lucontext
-  ${VOLTDB_LINK_FLAGS})
-
-ADD_DEPENDENCIES(${VOLTDB_LIBNAME} s2geo pcre2 crypto)
 
 if (WIN32)
+
+INCLUDE (CheckIncludeFiles)
+# usage: CHECK_INCLUDE_FILES (<header> <RESULT_VARIABLE> )
+CHECK_INCLUDE_FILES (sys/socket.h HAVE_POSIX_SOCKETS)
+IF (HAVE_POSIX_SOCKETS)
+ELSE()
+SET(WIN_INCLUDE -Wno-error=implicit-fallthrough)
+SET(WIN_LIB -L/C/Windows/system32 ws2_32.dll -lpsapi -lmman -lucontext)
+ENDIF()
+
 ADD_DEFINITIONS(-fpermissive
   -I$/usr/local/include
   -I/mingw/include
   -I"$ENV{JAVA_HOME}/include/" -D__USE_MINGW_ANSI_STDIO=1 
   -Wno-error=deprecated -Wno-error=array-bounds
-  -Wno-error=implicit-fallthrough
+  ${WIN_INCLUDE}
 )
 else()
 VOLTDB_ADD_LIBRARY(voltdbipcobjs OBJECT ${VOLTDB_IPC_SRC})
@@ -393,6 +394,15 @@ INSTALL(TARGETS ${VOLTDB_IPCRUN_NAME}
 
 endif()
 
+TARGET_LINK_LIBRARIES(${VOLTDB_LIBNAME}
+  -L${VOLTDB_3PTY_INSTALL_PREFIX}/lib
+  -L/usr/local/lib
+  -L/mingw/lib
+  ${WIN_LIB}
+  -lpcre2-8 -ls2geo -lcrypto 
+  ${VOLTDB_LINK_FLAGS})
+
+ADD_DEPENDENCIES(${VOLTDB_LIBNAME} s2geo pcre2 crypto)
 ########################################################################
 #
 # Where to install things, and what to install.

@@ -97,7 +97,7 @@ public class HTTPAdminListener {
         // target Directory location for folder w.r.t. resource base folder - dbmonitor
         public CacheStaticResourceHandler(final String target, int maxAge) {
             super();
-            final String path = VoltDB.class.getResource(RESOURCE_BASE + File.separator + target).toExternalForm();
+            final String path = VoltDB.class.getResource(RESOURCE_BASE + '/' + target).toExternalForm();
             if (m_log.isDebugEnabled()) {
                 m_log.debug("Resource base path: " + path);
             }
