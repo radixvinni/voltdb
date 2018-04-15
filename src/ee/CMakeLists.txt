@@ -352,7 +352,7 @@ INCLUDE (CheckIncludeFiles)
 CHECK_INCLUDE_FILES (sys/socket.h HAVE_POSIX_SOCKETS)
 IF (HAVE_POSIX_SOCKETS)
 ELSE()
-SET(WIN_INCLUDE -Wno-error=implicit-fallthrough)
+SET(WIN_INCLUDE -Wno-error=implicit-fallthrough -DPCRE2_STATIC)
 SET(WIN_LIB -L/C/Windows/system32 ws2_32.dll -lpsapi -lmman -lucontext)
 ENDIF()
 

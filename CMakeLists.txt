@@ -314,7 +314,7 @@ CHECK_INCLUDE_FILES (sys/socket.h HAVE_POSIX_SOCKETS)
 IF (HAVE_POSIX_SOCKETS)
 SET(WIN_TARGET Cygwin-x86_64)
 ELSE()
-SET(WIN_TARGET Mingw64)
+SET(WIN_TARGET mingw64)
 ENDIF()
 ExternalProject_Add(crypto
   PREFIX ${VOLTDB_OPENSSL_BUILD_PREFIX} # Not sure this is necessary.
