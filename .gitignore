@@ -100,3 +100,6 @@ tests/cmake_install.cmake
 
 3pty-install
 pcre2-prefix
+
+voltdb/LICENSE
+*.zip
