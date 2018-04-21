@@ -143,7 +143,7 @@ public class SystemStatsCollector {
           if (Platform.isWindows()) {
             if (first_time == 0) {
                 first_time = System.currentTimeMillis()-1;
-                prev_etime = first_time;
+                prev_etime = 0;
             }
             String command = String.format("tasklist /v /fi \"PID eq %d\" /fo csv", pid);
             String results = ShellTools.local_cmd(command);
@@ -162,18 +162,21 @@ public class SystemStatsCollector {
                     return null;
                 mem_total = Long.valueOf(lines[1].trim());
             }
-            double pmem = rss / mem_total;
-            long time = getDurationFromPSString(values[3]);
+            double pmem = (double)rss / mem_total;
+            String[] hms = values[7].split(":");
+            long time = 0;
+            if (hms.length == 3) time = ((Long.valueOf(hms[0])*60+Long.valueOf(hms[1]))*60+Long.valueOf(hms[2]))*1000;
             long etime = System.currentTimeMillis() - first_time;
             double pcpu = prev_pcpu;
-            if (prev_etime !=0 && prev_time !=0 && prev_time != time && prev_etime != etime) { 
-                pcpu = 1.0 * (time-prev_time) / (etime - prev_etime);
+            if (prev_time !=0 && prev_time != time && prev_etime != etime) { 
+                pcpu = (double) (time-prev_time) / (etime - prev_etime);
                 prev_pcpu = pcpu;
                 prev_etime = etime;
             }
             prev_time = time;
             
             // create a new Datum which adds java stats
+            //System.out.println("pcpu="+(pcpu*100)+" time="+time+" etime="+etime+" hms="+values[7]+" pid="+pid);
             return new PSData(rss, pmem, pcpu, time, etime);
           }
           else {

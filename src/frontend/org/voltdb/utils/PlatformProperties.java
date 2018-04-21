@@ -177,6 +177,50 @@ public class PlatformProperties implements Serializable {
 
         return hw;
     }
+    protected HardwareInfo getWindowsHardwareInfo() {
+        HardwareInfo hw = new HardwareInfo();
+
+        // determine ram
+        String results = ShellTools.local_cmd("wmic ComputerSystem get TotalPhysicalMemory");
+        String[] lines = results.split("\n");
+        if (lines.length != 3)
+        {
+            hostLog.fatal("Unable to read /proc/meminfo. Exiting.");
+            System.exit(-1);
+        }
+        hw.ramInMegabytes =  (int)(Long.valueOf(lines[1].trim())/1024/1024);
+        
+        // determine cpuinfo
+        results = ShellTools.local_cmd("wmic cpu get name");
+        lines = results.split("\n");
+        if (lines.length != 3)
+        {
+            hostLog.fatal("Unable to read /proc/cpuinfo. Exiting.");
+            System.exit(-1);
+        }
+        hw.cpuDesc = lines[1].trim();
+        
+        results = ShellTools.local_cmd("wmic cpu get NumberOfCores");
+        lines = results.split("\n");
+        if (lines.length != 3)
+        {
+            hostLog.fatal("Unable to read /proc/cpuinfo. Exiting.");
+            System.exit(-1);
+        }
+        hw.coreCount = Integer.valueOf(lines[1].trim());
+        hw.hardwareThreads = hw.coreCount;
+        
+        results = ShellTools.local_cmd("wmic cpu get NumberOfLogicalProcessors");
+        lines = results.split("\n");
+        if (lines.length != 3)
+        {
+            hostLog.fatal("Unable to read /proc/cpuinfo. Exiting.");
+            System.exit(-1);
+        }
+        hw.socketCount = Integer.valueOf(lines[1].trim());
+        
+        return hw;
+    }
 
     protected PlatformProperties() {
         HardwareInfo hw = null;
@@ -185,6 +229,9 @@ public class PlatformProperties implements Serializable {
         }
         else if (System.getProperty("os.name").toLowerCase().contains("linux")) {
             hw = getLinuxHardwareInfo();
+        }
+        else if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+            hw = getWindowsHardwareInfo();
         }
         else {
             hostLog.warn("Unable to determine supported operating system. Hardware info such as Memory,CPU will be incorrectly reported.");
