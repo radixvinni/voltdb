@@ -30,6 +30,7 @@ import org.voltcore.logging.VoltLogger;
 import org.voltdb.jni.ExecutionEngine;
 import org.voltdb.processtools.ShellTools;
 
+import com.sun.jna.Platform;
 /**
  * SystemStatsCollector stores a history of system memory usage samples.
  * Generating a sample is a manually instigated process that must be done
@@ -57,14 +58,17 @@ public class SystemStatsCollector {
     final static ArrayDeque<Datum> historyM = new ArrayDeque<Datum>(); // every minute
     final static ArrayDeque<Datum> historyS = new ArrayDeque<Datum>(); // every 5 seconds
     final static int historySize = 720;
-
     /**
      * All the code that is needed to read info from "ps" is
      * packaged up here. Should work on MACOSX and LINUX.
      * It's not fast though.
      */
     public static class PSScraper {
-
+        static long mem_total = 0;
+        static long prev_time = 0;
+        static long prev_etime = 0;
+        static long first_time = 0;
+        static double prev_pcpu = 0;
         /**
          * Structure to hold the output from "ps"
          */
@@ -136,6 +140,43 @@ public class SystemStatsCollector {
          * @return Structure containing output of the "ps" call.
          */
         public static PSData getPSData(int pid) {
+          if (Platform.isWindows()) {
+            if (!first_time) {
+                first_time = System.currentTimeMillis()-1;
+                prev_etime = first_time;
+            }
+            String command = String.format("tasklist /v /fi \"PID eq %d\" /fo csv", pid);
+            String results = ShellTools.local_cmd(command);
+            String[] lines = results.split("\n");
+            if (lines.length != 2)
+                return null;
+            results = lines[1];
+            results = results.trim();
+            results = results.replace("\"", "").replace(" ","");
+            String[] values = results.split(",");
+            long rss = Long.valueOf(values[4]) * 1024;
+            if (!mem_total){
+                results = ShellTools.local_cmd("wmic ComputerSystem get TotalPhysicalMemory");
+                String[] lines = results.split("\n");
+                if (lines.length != 2)
+                    return null;
+                mem_total = Long.valueOf(lines[1].trim());
+            }
+            double pmem = rss / mem_total;
+            long time = getDurationFromPSString(values[3]);
+            long etime = System.currentTimeMillis() - first_time;
+            double pcpu = prev_pcpu;
+            if (prev_etime && prev_time && prev_time != time && prev_etime != etime) { 
+                pcpu = 1.0 * (time-prev_time) / (etime - prev_etime);
+                prev_pcpu = pcpu;
+                prev_etime = etime;
+            }
+            prev_time = time;
+            
+            // create a new Datum which adds java stats
+            return new PSData(rss, pmem, pcpu, time, etime);
+          }
+          else {
             // run "ps" to get stats for this pid
             String command = String.format("ps -p %d -o rss,pmem,pcpu,time,etime", pid);
             String results = ShellTools.local_cmd(command);
@@ -162,6 +203,7 @@ public class SystemStatsCollector {
 
             // create a new Datum which adds java stats
             return new PSData(rss, pmem, pcpu, time, etime);
+          }
         }
     }
 

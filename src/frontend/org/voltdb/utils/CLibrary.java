@@ -46,6 +46,11 @@ public class CLibrary {
         public static native final int getpid();
     }*/
     
+    private static class MsvcrtLib {
+        static { if (Platform.isWindows()) Native.register("msvcrt"); }
+        public static native final int getpid();
+    }
+    
     public static final int RLIMIT_NOFILE_LINUX = 7;
     public static final int RLIMIT_NOFILE_MAC_OS_X = 8;
 
@@ -60,7 +65,7 @@ public class CLibrary {
         if (!Platform.isWindows())
             return PosixLib.getpid();
         else 
-            return 0;
+            return MsvcrtLib.getpid();
     }
     
     /*
