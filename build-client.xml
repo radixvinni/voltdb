@@ -243,13 +243,13 @@ CLEANING
 -->
 
 <target name='clean' description="Remove all voltdb client artifacts.">
-  <exec dir='.' executable='/bin/sh'>
+  <exec dir='.' executable='sh'>
     <arg line="-c 'rm -rf ${build.client.dir}'"/>
   </exec>
-  <exec dir='.' executable='/bin/sh'>
+  <exec dir='.' executable='sh'>
     <arg line="-c 'rm -rf voltdb/voltdbclient*.jar'"/>
   </exec>
-  <exec dir='.' executable='/bin/sh'>
+  <exec dir='.' executable='sh'>
     <arg line="-c 'rm -rf doc/javadoc/java-client-api/*'"/>
   </exec>
 </target>

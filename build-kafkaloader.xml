@@ -87,10 +87,10 @@ CLEANING
 -->
 
 <target name='clean' description="Remove Kafka Loader artifacts">
-  <exec dir='.' executable='/bin/sh'>
+  <exec dir='.' executable='sh'>
     <arg line="-c 'rm -f ${build.prod.dir}/org/voltdb/utils/KafkaLoader10*'"/>
   </exec>
-  <exec dir='.' executable='/bin/sh'>
+  <exec dir='.' executable='sh'>
     <arg line="-c 'rm -rf {build.kfloadersrc.dir}'"/>
   </exec>  
 </target>
