@@ -141,7 +141,7 @@ public class SystemStatsCollector {
          */
         public static PSData getPSData(int pid) {
           if (Platform.isWindows()) {
-            if (!first_time) {
+            if (first_time == 0) {
                 first_time = System.currentTimeMillis()-1;
                 prev_etime = first_time;
             }
@@ -152,13 +152,13 @@ public class SystemStatsCollector {
                 return null;
             results = lines[1];
             results = results.trim();
-            results = results.replace("\"", "").replace(" ","");
+            results = results.replace("\"", "");
             String[] values = results.split(",");
-            long rss = Long.valueOf(values[4]) * 1024;
-            if (!mem_total){
+            long rss = Long.valueOf(values[4].replaceAll("[^0-9]","")) * 1024;
+            if (mem_total == 0){
                 results = ShellTools.local_cmd("wmic ComputerSystem get TotalPhysicalMemory");
-                String[] lines = results.split("\n");
-                if (lines.length != 2)
+                lines = results.split("\n");
+                if (lines.length != 3)
                     return null;
                 mem_total = Long.valueOf(lines[1].trim());
             }
@@ -166,7 +166,7 @@ public class SystemStatsCollector {
             long time = getDurationFromPSString(values[3]);
             long etime = System.currentTimeMillis() - first_time;
             double pcpu = prev_pcpu;
-            if (prev_etime && prev_time && prev_time != time && prev_etime != etime) { 
+            if (prev_etime !=0 && prev_time !=0 && prev_time != time && prev_etime != etime) { 
                 pcpu = 1.0 * (time-prev_time) / (etime - prev_etime);
                 prev_pcpu = pcpu;
                 prev_etime = etime;
